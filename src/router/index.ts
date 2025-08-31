@@ -152,16 +152,6 @@ const router = createRouter({
         title: 'Blank',
       },
     },
-
-    {
-      path: '/error-404',
-      name: '404 Error',
-      component: () => import('../views/Errors/FourZeroFour.vue'),
-      meta: {
-        title: '404 Error',
-      },
-    },
-
     {
       path: '/signin',
       name: 'Signin',
@@ -187,7 +177,15 @@ const router = createRouter({
       meta: {
         title: 'Access Forbidden'
       },
-    }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: '404 Error',
+      component: () => import('../views/Errors/FourZeroFour.vue'),
+      meta: {
+        title: '404 Error',
+      },
+    },
   ],
 })
 

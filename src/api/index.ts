@@ -25,10 +25,19 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      // localStorage.removeItem('refreshToken')
-      window.location.href = '/signin'
+    const status = error.response?.status
+    const requestUrl: string | undefined = error.config?.url
+    if (status === 401) {
+      // Don't force redirect for expected auth failures on login/register endpoints
+      const isAuthAttempt = requestUrl?.includes('/auth/login') || requestUrl?.includes('/auth/register')
+      if (!isAuthAttempt) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        // Use hard redirect only if we're not already on signin
+        if (window.location.pathname !== '/signin') {
+          window.location.href = '/signin'
+        }
+      }
     }
     return Promise.reject(error)
   }

@@ -144,13 +144,13 @@ toast.info('Information message')
 1. **Development** (`.env.development`)
 ```env
 VITE_API_BASE_URL=http://localhost:3000/api
-VITE_APP_NAME=TailAdmin Development
+VITE_APP_NAME=PAYOO Development
 ```
 
 2. **Production** (`.env.production`)
 ```env
 VITE_API_BASE_URL=https://your-api.com/api
-VITE_APP_NAME=TailAdmin
+VITE_APP_NAME=PAYOO
 ```
 
 ## 🛡️ Route Protection
