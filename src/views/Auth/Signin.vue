@@ -274,8 +274,20 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.store'
+import { useToast } from '@/composables/useToast'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+
+defineOptions({
+  name: 'SigninPage'
+})
+
+const router = useRouter()
+const authStore = useAuthStore()
+const toast = useToast()
+
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -285,12 +297,23 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
-const handleSubmit = () => {
-  // Handle form submission
-  console.log('Form submitted', {
-    email: email.value,
-    password: password.value,
-    keepLoggedIn: keepLoggedIn.value,
-  })
+const handleSubmit = async () => {
+  if (!email.value || !password.value) {
+    toast.error('Please fill in all required fields')
+    return
+  }
+
+  try {
+    await authStore.login({
+      email: email.value,
+      password: password.value
+    })
+    
+    toast.success('Login successful')
+    router.push('/')
+  } catch (err) {
+    // Error message is already set in the store and displayed
+    console.error('Login failed:', err)
+  }
 }
 </script>

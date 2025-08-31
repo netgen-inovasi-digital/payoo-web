@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.store'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,43 @@ const router = createRouter({
       component: () => import('../views/Ecommerce.vue'),
       meta: {
         title: 'eCommerce Dashboard',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/products',
+      name: 'Products',
+      component: () => import('../views/Products/ProductList.vue'),
+      meta: {
+        title: 'Products',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/products/create',
+      name: 'ProductCreate',
+      component: () => import('../views/Products/ProductCreate.vue'),
+      meta: {
+        title: 'Create Product',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/products/:id',
+      name: 'ProductDetail',
+      component: () => import('../views/Products/ProductDetail.vue'),
+      meta: {
+        title: 'Product Detail',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/products/:id/edit',
+      name: 'ProductEdit',
+      component: () => import('../views/Products/ProductEdit.vue'),
+      meta: {
+        title: 'Edit Product',
+        requiresAuth: true
       },
     },
     {
@@ -130,6 +168,7 @@ const router = createRouter({
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
         title: 'Signin',
+        requiresGuest: true
       },
     },
     {
@@ -138,14 +177,42 @@ const router = createRouter({
       component: () => import('../views/Auth/Signup.vue'),
       meta: {
         title: 'Signup',
+        requiresGuest: true
       },
     },
+    {
+      path: '/403',
+      name: 'Forbidden',
+      component: () => import('../views/Errors/Forbidden.vue'),
+      meta: {
+        title: 'Access Forbidden'
+      },
+    }
   ],
 })
 
 export default router
 
-router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/signin')
+    return
+  }
+  
+  // Check if route is for guests only
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next('/')
+    return
+  }
+  
+  // Get current user if authenticated but no user data
+  if (authStore.isAuthenticated && !authStore.user) {
+    await authStore.getCurrentUser()
+  }
+  
+  document.title = `PAYOO ${to.meta.title} | Admin Dashboard`
   next()
 })
