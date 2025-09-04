@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
 }
 
 .dropzone:hover {
-  border-color: #465fff;
+  border-color: #2fa36b;
 }
 
 .dropzone .dz-preview {

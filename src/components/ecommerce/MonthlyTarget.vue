@@ -151,7 +151,7 @@ const props = defineProps({
 const series = computed(() => [props.value])
 
 const chartOptions = {
-  colors: ['#465FFF'],
+  colors: ['#2fa36b'],
   chart: {
     fontFamily: 'Outfit, sans-serif',
     sparkline: {
@@ -188,7 +188,7 @@ const chartOptions = {
   },
   fill: {
     type: 'solid',
-    colors: ['#465FFF'],
+    colors: ['#2fa36b'],
   },
   stroke: {
     lineCap: 'round',

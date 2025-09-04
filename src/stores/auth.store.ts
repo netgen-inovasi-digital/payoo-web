@@ -4,7 +4,8 @@ import { authService } from '@/api/services'
 import type { User, LoginCredentials, RegisterData } from '@/api/types/auth.types'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>(null)
+  const storedUser = localStorage.getItem('user')
+  const user = ref<User | null>(storedUser ? JSON.parse(storedUser) : null)
   const token = ref<string | null>(localStorage.getItem('token'))
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -17,10 +18,16 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('token', accessToken)
   }
 
+  const setUser = (userData: User) => {
+    user.value = userData
+    localStorage.setItem('user', JSON.stringify(userData))
+  }
+
   const clearTokens = () => {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }
 
   const login = async (credentials: LoginCredentials) => {
@@ -29,8 +36,13 @@ export const useAuthStore = defineStore('auth', () => {
     
     try {
       const response = await authService.login(credentials)
+      if (response.status !== 'success') {
+        error.value = response.message || 'Login failed'
+        throw new Error(error.value)
+      }
       user.value = response.data.user
       setTokens(response.data.token)
+      setUser(response.data.user)
       return response
     } catch (err: unknown) {
       const errorMessage = (err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Login failed'
@@ -47,6 +59,14 @@ export const useAuthStore = defineStore('auth', () => {
     
     try {
       const response = await authService.register(data)
+      if (response.status !== 'success') {
+        error.value = response.message || 'Registration failed'
+        throw new Error(error.value)
+      }
+      // Auto login behavior after successful registration
+      user.value = response.data.user
+      setTokens(response.data.token)
+      setUser(response.data.user)
       return response
     } catch (err: unknown) {
       const errorMessage = (err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Registration failed'
@@ -58,11 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = async () => {
-    try {
-      await authService.logout()
-    } finally {
-      clearTokens()
-    }
+    clearTokens()
   }
 
   const getCurrentUser = async () => {

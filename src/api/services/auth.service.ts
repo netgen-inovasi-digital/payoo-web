@@ -13,23 +13,23 @@ export const authService = {
     return response.data
   },
 
-  async logout(): Promise<void> {
-    await api.post('/auth/logout')
-    localStorage.removeItem('token')
-  },
-
   async getCurrentUser(): Promise<ApiResponse<User>> {
     const response = await api.get('/account/profile')
     return response.data
   },
 
-  async forgotPassword(email: string): Promise<ApiResponse<void>> {
-    const response = await api.post('/auth/forgot-password', { email })
-    return response.data
-  },
+  // async logout(): Promise<void> {
+  //   await api.post('/auth/logout')
+  //   localStorage.removeItem('token')
+  // },
 
-  async resetPassword(token: string, password: string): Promise<ApiResponse<void>> {
-    const response = await api.post('/auth/reset-password', { token, password })
-    return response.data
-  }
+  // async forgotPassword(email: string): Promise<ApiResponse<void>> {
+  //   const response = await api.post('/auth/forgot-password', { email })
+  //   return response.data
+  // },
+
+  // async resetPassword(token: string, password: string): Promise<ApiResponse<void>> {
+  //   const response = await api.post('/auth/reset-password', { token, password })
+  //   return response.data
+  // }
 }
