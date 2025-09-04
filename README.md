@@ -5,8 +5,6 @@ framework, and **Tailwind CSS**. This **powerful combination** provides develope
 essential components, elements, and pages to launch a comprehensive and data-centric back-end, dashboard, or admin panel
 solution for any Vue.js based web projects.
 
-![PAYOO Vue.js Dashboard Preview](./banner.png)
-
 With PAYOO Vue, you can leverage **Vue.js 3** features such as declarative rendering, component-based architecture,
 Vue Router for routing, and Pinia for state management. It also utilizes the power of Tailwind CSS for rapid UI
 development with its low-level utility classes and responsive design capabilities.
