@@ -36,24 +36,23 @@ layer(base);
   --text-theme-xs: 12px;
   --text-theme-xs--line-height: 18px;
 
-  --color-current: currentColor;
+  --color-current: #2FA36B;
   --color-transparent: transparent;
   --color-white: #ffffff;
   --color-black: #101828;
 
-  /* Updated brand palette (base #2FA36B) */
-  --color-brand-25: #f2fbf7;
-  --color-brand-50: #e9f9f2;
-  --color-brand-100: #d3f2e4;
-  --color-brand-200: #a6e5ca;
-  --color-brand-300: #7ad8b0;
-  --color-brand-400: #4fcc96;
-  --color-brand-500: #2fa36b; /* primary */
-  --color-brand-600: #238356;
-  --color-brand-700: #1b6644;
-  --color-brand-800: #154f35;
-  --color-brand-900: #103c29;
-  --color-brand-950: #0a261a;
+  --color-brand-25: #eaf6f1;
+  --color-brand-50: #d5ede2;
+  --color-brand-100: #acdbc5;
+  --color-brand-200: #82c9a8;
+  --color-brand-300: #58b78b;
+  --color-brand-400: #3eaa77;
+  --color-brand-500: #2FA36B;
+  --color-brand-600: #298c5c;
+  --color-brand-700: #23754d;
+  --color-brand-800: #1d5e3e;
+  --color-brand-900: #174d32;
+  --color-brand-950: #0c291b;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;

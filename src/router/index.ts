@@ -53,27 +53,35 @@ const router = createRouter({
       },
     },
     {
-      path: '/calendar',
-      name: 'Calendar',
-      component: () => import('../views/Others/Calendar.vue'),
+      path: '/riwayat',
+      name: 'Riwayat',
+      component: () => import('../views/Riwayat/index.vue'),
       meta: {
-        title: 'Calendar',
+        title: 'Riwayat Transaksi',
       },
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: () => import('../views/Others/UserProfile.vue'),
+      path: '/order',
+      name: 'Order',
+      component: () => import('../views/Order/index.vue'),
       meta: {
-        title: 'Profile',
+        title: 'Order',
       },
     },
     {
-      path: '/form-elements',
-      name: 'Form Elements',
-      component: () => import('../views/Forms/FormElements.vue'),
+      path: '/produk',
+      name: 'Produk',
+      component: () => import('../views/Produk/index.vue'),
       meta: {
-        title: 'Form Elements',
+        title: 'Produk',
+      },
+    },
+    {
+      path: '/stok',
+      name: 'Stok',
+      component: () => import('../views/stok/index.vue'),
+      meta: {
+        title: 'Stok',
       },
     },
     {

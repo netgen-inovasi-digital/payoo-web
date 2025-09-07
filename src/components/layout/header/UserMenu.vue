@@ -5,14 +5,10 @@
       @click.prevent="toggleDropdown"
     >
       <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img
-          :src="userPhoto || '/images/user/owner.jpg'"
-          :alt="userName"
-          class="object-cover w-full h-full"
-        />
+        <img src="/images/user/foto.jpg" alt="User" />
       </span>
 
-      <span class="block mr-1 font-medium text-theme-sm">{{ userName }}</span>
+      <span class="block mr-1 font-medium text-theme-sm">Ridha </span>
 
       <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" />
     </button>
@@ -24,10 +20,10 @@
     >
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          {{ userName }}
+          Ridha
         </span>
         <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-          {{ userEmail || '—' }}
+          ridhalesmana07@gmail.com
         </span>
       </div>
 
@@ -77,6 +73,7 @@ const userPhoto = computed(() => authStore.user?.photo || null)
 
 const menuItems = [
   { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
+  { href: '/chat', icon: SettingsIcon, text: 'Account settings' },
 ]
 
 const toggleDropdown = () => {
