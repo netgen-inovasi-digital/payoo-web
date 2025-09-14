@@ -79,7 +79,7 @@ const router = createRouter({
     {
       path: '/stok',
       name: 'Stok',
-      component: () => import('../views/stok/index.vue'),
+      component: () => import('../views/Stok/index.vue'),
       meta: {
         title: 'Stok',
       },
