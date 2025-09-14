@@ -4,9 +4,9 @@
   >
     <div class="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
       <div class="w-full">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Statistics</h3>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Statistik</h3>
         <p class="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-          Target you’ve set for each month
+          Berdasarkan total pesanan selesai.
         </p>
       </div>
 
@@ -40,9 +40,9 @@
 import { ref } from 'vue'
 
 const options = [
-  { value: 'optionOne', label: 'Monthly' },
-  { value: 'optionTwo', label: 'Quarterly' },
-  { value: 'optionThree', label: 'Annually' },
+  { value: 'optionOne', label: 'Bulan' },
+  { value: 'optionTwo', label: 'Hari' },
+  { value: 'optionThree', label: 'Tahun' },
 ]
 
 const selected = ref('optionOne')

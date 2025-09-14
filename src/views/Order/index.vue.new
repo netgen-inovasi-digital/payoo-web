@@ -1,71 +1,66 @@
 <template>
   <AdminLayout>
-
+    <PageBreadcrumb pageTitle="Order" />
+    
     <div class="container mx-auto p-6">
       <div class="grid grid-cols-12 gap-6">
         <!-- Left side - Orders and Products -->
         <div class="col-span-8">
           <!-- Orders List -->
-          <div class="mb-8 orders-list">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-2xl font-semibold">Daftar Pesanan</h2>
-              <div class="flex gap-2">
-                <button v-for="status in ['All', 'Ready', 'In Progress', 'Done']" :key="status"
-                  @click="filterStatus = status" class="px-4 py-2 rounded-full text-sm" :class="{
-                    'bg-emerald-500 text-white': status === filterStatus,
-                    'border border-emerald-500 text-emerald-500': status !== filterStatus
-                  }">
-                  {{ status }}
-                </button>
-              </div>
+          <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Orders List</h2>
+            <div class="flex gap-2 mb-4">
+              <button
+                v-for="status in ['All', 'Ready', 'In Progress', 'Done']"
+                :key="status"
+                @click="filterStatus = status"
+                class="px-4 py-2 rounded-full"
+                :class="{
+                  'bg-emerald-500 text-white': status === filterStatus,
+                  'border border-emerald-500 text-emerald-500': status !== filterStatus
+                }"
+              >
+                {{ status }}
+              </button>
             </div>
-
-            <!-- Scroll Indicators -->
-            <div class="relative">
-              <!-- Left shadow when scrollable -->
+            
+            <!-- Order Cards -->
+            <div class="grid grid-cols-2 gap-4">
               <div
-                class="absolute left-0 top-0 bottom-4 w-6 bg-gradient-to-r from-white to-transparent pointer-events-none">
-              </div>
-              <!-- Right shadow when scrollable -->
-              <div
-                class="absolute right-0 top-0 bottom-4 w-6 bg-gradient-to-l from-white to-transparent pointer-events-none">
-              </div>
-            </div>
-
-            <!-- Order Cards - Horizontal Scrollable -->
-            <div class="overflow-x-auto pb-4 -mx-6">
-              <div class="flex gap-4 px-6 min-w-max">
-                <div v-for="order in sortedOrders" :key="order.orderNumber"
-                  class="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-lg transition-shadow w-80"
-                  @click="openStatusUpdate(order)">
-                  <div class="flex justify-between items-center mb-2">
-                    <span class="font-medium">{{ order.customerName }}</span>
-                    <span class="px-3 py-1 rounded-full text-sm" :class="{
+                v-for="order in filteredOrders"
+                :key="order.orderNumber"
+                class="bg-white rounded-lg p-4 shadow"
+              >
+                <div class="flex justify-between items-center mb-2">
+                  <span class="font-medium">{{ order.customerName }}</span>
+                  <span
+                    class="px-3 py-1 rounded-full text-sm"
+                    :class="{
                       'bg-emerald-100 text-emerald-500': order.status === 'Ready',
                       'bg-yellow-100 text-yellow-500': order.status === 'In Progress',
                       'bg-blue-100 text-blue-500': order.status === 'Done'
-                    }">
-                      {{ order.status }}
-                    </span>
+                    }"
+                  >
+                    {{ order.status }}
+                  </span>
+                </div>
+                
+                <div class="space-y-2">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Order Number</span>
+                    <span>{{ order.orderNumber }}</span>
                   </div>
-
-                  <div class="space-y-2">
+                  
+                  <div v-for="item in order.items" :key="item.product.id">
                     <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Order Number</span>
-                      <span>{{ order.orderNumber }}</span>
+                      <span>{{ item.product.name }}</span>
+                      <span>{{ item.quantity }} pcs</span>
                     </div>
-
-                    <div v-for="item in order.items" :key="item.product.id">
-                      <div class="flex justify-between text-sm">
-                        <span>{{ item.product.name }}</span>
-                        <span>{{ item.quantity }} pcs</span>
-                      </div>
-                    </div>
-
-                    <div class="flex justify-between font-medium pt-2 border-t">
-                      <span>Total</span>
-                      <span class="text-emerald-500">Rp. {{ order.total.toLocaleString() }}</span>
-                    </div>
+                  </div>
+                  
+                  <div class="flex justify-between font-medium pt-2 border-t">
+                    <span>Total</span>
+                    <span class="text-emerald-500">Rp. {{ order.total.toLocaleString() }}</span>
                   </div>
                 </div>
               </div>
@@ -74,28 +69,36 @@
 
           <!-- Category and Products -->
           <div>
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-2xl font-semibold">Produk</h2>
-              <div class="flex gap-2">
-                <button v-for="category in categories" :key="category" @click="selectedCategory = category"
-                  class="px-4 py-2 rounded-full text-sm" :class="{
-                    'bg-emerald-500 text-white': selectedCategory === category,
-                    'border border-emerald-500 text-emerald-500': selectedCategory !== category
-                  }">
-                  {{ category }}
-                </button>
-              </div>
+            <h2 class="text-xl font-semibold mb-4">Category</h2>
+            <div class="flex gap-4 mb-6">
+              <button
+                v-for="category in categories"
+                :key="category"
+                @click="selectedCategory = category"
+                class="px-6 py-2 rounded-full"
+                :class="{
+                  'bg-gray-900 text-white': selectedCategory === category,
+                  'bg-white': selectedCategory !== category
+                }"
+              >
+                {{ category }}
+              </button>
             </div>
 
             <!-- Products Grid -->
-            <div class="grid grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2">
-              <div v-for="product in filteredProducts" :key="product.id"
-                class="bg-white rounded-lg p-4 shadow relative">
-                <button @click="addToCart(product)"
-                  class="absolute top-4 right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center">
+            <div class="grid grid-cols-3 gap-4">
+              <div
+                v-for="product in filteredProducts"
+                :key="product.id"
+                class="bg-white rounded-lg p-4 shadow relative"
+              >
+                <button
+                  @click="addToCart(product)"
+                  class="absolute top-4 right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center"
+                >
                   <span class="text-xl">+</span>
                 </button>
-
+                
                 <img :src="product.image" :alt="product.name" class="w-full h-40 object-cover rounded-lg mb-3">
                 <h3 class="font-medium mb-2">{{ product.name }}</h3>
                 <div class="flex justify-between items-center">
@@ -104,65 +107,62 @@
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
 
         <!-- Right side - Cart -->
         <div class="col-span-4">
           <div class="bg-white rounded-lg p-6 shadow sticky top-6">
             <h2 class="text-xl font-semibold mb-4">Your Order</h2>
-
+            
             <!-- Cart Items -->
             <div class="space-y-4 mb-6">
-              <div v-for="item in cartItems" :key="item.product.id" class="flex items-center gap-4">
-                <img :src="item.product.image || '/images/product/default.jpg'" :alt="item.product.name"
-                  class="w-16 h-16 object-cover rounded-lg">
+              <div
+                v-for="item in cartItems"
+                :key="item.product.id"
+                class="flex items-center gap-4"
+              >
+                <img
+                  :src="item.product.image || '/images/product/default.jpg'"
+                  :alt="item.product.name"
+                  class="w-16 h-16 object-cover rounded-lg"
+                >
                 <div class="flex-1">
                   <h4 class="font-medium">{{ item.product.name }}</h4>
                   <div class="flex justify-between items-center">
                     <span>Rp. {{ item.product.price.toLocaleString() }}</span>
-                    <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm">
+                    <button
+                      @click="removeFromCart(item.product.id)"
+                      class="text-red-500 text-sm"
+                    >
                       Remove
                     </button>
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <button @click="updateQuantity(item.product.id, false)"
-                    class="w-6 h-6 rounded-full border flex items-center justify-center">
+                  <button
+                    @click="updateQuantity(item.product.id, false)"
+                    class="w-6 h-6 rounded-full border flex items-center justify-center"
+                  >
                     -
                   </button>
                   <span>{{ item.quantity }}</span>
-                  <button @click="updateQuantity(item.product.id, true)"
-                    class="w-6 h-6 rounded-full border flex items-center justify-center">
+                  <button
+                    @click="updateQuantity(item.product.id, true)"
+                    class="w-6 h-6 rounded-full border flex items-center justify-center"
+                  >
                     +
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Customer and Cashier Inputs -->
-            <div class="space-y-4 mb-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-                <input v-model="customerName" type="text" placeholder="Enter customer name"
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cashier</label>
-                <select v-model="cashierName"
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
-                  <option value="">Select cashier</option>
-                  <option v-for="cashier in cashiers" :key="cashier" :value="cashier">
-                    {{ cashier }}
-                  </option>
-                </select>
-              </div>
-            </div>
-
             <!-- Order Summary -->
             <div class="space-y-2 mb-6">
+              <div class="flex justify-between">
+                <span>Kasir</span>
+                <span>{{ cashierName }}</span>
+              </div>
               <div class="flex justify-between">
                 <span>Subtotal</span>
                 <span>Rp. {{ subtotal.toLocaleString() }}</span>
@@ -178,9 +178,11 @@
             </div>
 
             <!-- Checkout Button -->
-            <button @click="checkout"
-              class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="cartItems.length === 0 || !isFormValid">
+            <button
+              @click="checkout"
+              class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium"
+              :disabled="cartItems.length === 0"
+            >
               Checkout
             </button>
           </div>
@@ -189,16 +191,21 @@
     </div>
 
     <!-- Payment Method Modal -->
-    <div v-if="showPaymentModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div v-if="showPaymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-lg w-full max-w-md p-6">
         <h3 class="text-xl font-semibold mb-4">Select Payment Method</h3>
-
+        
         <div class="space-y-3 mb-6">
-          <button v-for="method in paymentMethods" :key="method.id" @click="selectedPaymentMethod = method.id"
-            class="w-full p-4 rounded-lg border-2 flex items-center gap-3" :class="{
+          <button
+            v-for="method in paymentMethods"
+            :key="method.id"
+            @click="selectedPaymentMethod = method.id"
+            class="w-full p-4 rounded-lg border-2 flex items-center gap-3"
+            :class="{
               'border-emerald-500 bg-emerald-50': selectedPaymentMethod === method.id,
               'border-gray-200': selectedPaymentMethod !== method.id
-            }">
+            }"
+          >
             <span class="text-2xl">{{ method.icon }}</span>
             <span class="font-medium">{{ method.name }}</span>
           </button>
@@ -220,13 +227,18 @@
         </div>
 
         <div class="flex gap-3">
-          <button @click="showPaymentModal = false" class="flex-1 py-3 border border-gray-300 rounded-lg font-medium"
-            :disabled="isProcessingPayment">
+          <button
+            @click="showPaymentModal = false"
+            class="flex-1 py-3 border border-gray-300 rounded-lg font-medium"
+            :disabled="isProcessingPayment"
+          >
             Cancel
           </button>
-          <button @click="processPayment"
+          <button
+            @click="processPayment"
             class="flex-1 py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50"
-            :disabled="!selectedPaymentMethod || isProcessingPayment">
+            :disabled="!selectedPaymentMethod || isProcessingPayment"
+          >
             <span v-if="isProcessingPayment">Processing...</span>
             <span v-else>Pay Now</span>
           </button>
@@ -234,45 +246,8 @@
       </div>
     </div>
 
-    <!-- Status Update Modal -->
-    <div v-if="showStatusModal && selectedOrder"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg w-full max-w-md p-6">
-        <h3 class="text-xl font-semibold mb-4">Update Order Status</h3>
-
-        <div class="mb-4">
-          <div class="text-sm text-gray-600 mb-2">Order #{{ selectedOrder.orderNumber }}</div>
-          <div class="font-medium mb-1">{{ selectedOrder.customerName }}</div>
-          <div class="text-sm text-gray-600">
-            {{ selectedOrder.items.length }} items •
-            Rp. {{ selectedOrder.total.toLocaleString() }}
-          </div>
-        </div>
-
-        <div class="space-y-3 mb-6">
-          <button v-for="status in orderStatuses" :key="status" @click="updateOrderStatus(status)"
-            class="w-full p-4 rounded-lg border-2 flex items-center justify-between" :class="{
-              'border-emerald-500 bg-emerald-50': selectedOrder.status === status,
-              'border-gray-200 hover:border-gray-300': selectedOrder.status !== status
-            }">
-            <span class="font-medium">{{ status }}</span>
-            <span class="w-3 h-3 rounded-full" :class="{
-              'bg-emerald-500': selectedOrder.status === status,
-              'bg-gray-200': selectedOrder.status !== status
-            }"></span>
-          </button>
-        </div>
-
-        <div class="flex justify-end">
-          <button @click="showStatusModal = false" class="px-6 py-2 border border-gray-300 rounded-lg font-medium">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Success Modal -->
-    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-lg w-full max-w-sm p-6 text-center">
         <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,8 +256,8 @@
         </div>
         <h3 class="text-xl font-semibold mb-2">Payment Successful!</h3>
         <p class="text-gray-600 mb-4">Your order has been processed successfully.</p>
-        <div class="text-sm text-emerald-500">
-          Order #{{ orders[orders.length - 1]?.orderNumber }} has been created
+        <div class="animate-pulse text-sm text-gray-500">
+          Redirecting to transactions...
         </div>
       </div>
     </div>
@@ -322,13 +297,8 @@ const router = useRouter()
 // Modal states
 const showPaymentModal = ref(false)
 const showSuccessModal = ref(false)
-const showStatusModal = ref(false)
 const selectedPaymentMethod = ref('')
 const isProcessingPayment = ref(false)
-const selectedOrder = ref<Order | null>(null)
-
-const orderStatuses = ['Ready', 'In Progress', 'Done'] as const
-type OrderStatus = typeof orderStatuses[number]
 
 // Payment methods
 const paymentMethods = [
@@ -396,19 +366,7 @@ const cartItems = ref<OrderItem[]>([])
 const selectedCategory = ref('All')
 const filterStatus = ref('All')
 const categories = ['All', 'Promo', 'Food', 'Beverage', 'Desserts']
-const customerName = ref('')
-const cashierName = ref('')
-const cashiers = [
-  'Rahmat',
-  'Anisa',
-  'Budi',
-  'Diana'
-]
-
-// Form validation
-const isFormValid = computed(() => {
-  return customerName.value.trim() !== '' && cashierName.value !== ''
-})
+const cashierName = ref('Rahmat')
 
 // Computed properties
 const filteredProducts = computed(() => {
@@ -419,19 +377,6 @@ const filteredProducts = computed(() => {
 const filteredOrders = computed(() => {
   if (filterStatus.value === 'All') return orders.value
   return orders.value.filter(order => order.status === filterStatus.value)
-})
-
-// Sort orders by status: In Progress -> Ready -> Done
-const sortedOrders = computed(() => {
-  const statusOrder = {
-    'In Progress': 0,
-    'Ready': 1,
-    'Done': 2
-  }
-
-  return filteredOrders.value.slice().sort((a, b) => {
-    return statusOrder[a.status] - statusOrder[b.status]
-  })
 })
 
 const subtotal = computed(() => {
@@ -474,34 +419,11 @@ const updateQuantity = (productId: string, increment: boolean) => {
 
 const checkout = () => {
   if (cartItems.value.length === 0) return
-  if (!isFormValid.value) {
-    alert('Please enter customer name and select cashier')
-    return
-  }
   showPaymentModal.value = true
 }
 
-const openStatusUpdate = (order: Order) => {
-  selectedOrder.value = order
-  showStatusModal.value = true
-}
-
-const updateOrderStatus = (newStatus: OrderStatus) => {
-  if (!selectedOrder.value) return
-
-  // Find and update the order in the orders array
-  const orderToUpdate = orders.value.find(o => o.orderNumber === selectedOrder.value?.orderNumber)
-  if (orderToUpdate) {
-    orderToUpdate.status = newStatus
-  }
-
-  // Close the modal
-  showStatusModal.value = false
-  selectedOrder.value = null
-}
-
 const processPayment = async () => {
-  if (!selectedPaymentMethod.value || !isFormValid.value) return
+  if (!selectedPaymentMethod.value) return
 
   isProcessingPayment.value = true
 
@@ -512,7 +434,7 @@ const processPayment = async () => {
     // Create new order
     const newOrder: Order = {
       orderNumber: String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
-      customerName: customerName.value,
+      customerName: 'Customer',
       items: [...cartItems.value],
       status: 'Ready',
       total: total.value
@@ -539,13 +461,10 @@ const processPayment = async () => {
     selectedPaymentMethod.value = ''
     cartItems.value = []
 
-    // Auto close success modal and scroll to orders list after 2 seconds
+    // Auto close success modal and redirect after 2 seconds
     setTimeout(() => {
       showSuccessModal.value = false
-      // Scroll to the orders list
-      document.querySelector('.orders-list')?.scrollIntoView({ behavior: 'smooth' })
-      // Reset filter to show all orders
-      filterStatus.value = 'All'
+      router.push('/riwayat')
     }, 2000)
 
   } catch (error) {

@@ -62,6 +62,7 @@ import { UserCircleIcon, ChevronDownIcon, LogoutIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
+import { SettingsIcon } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const dropdownOpen = ref(false)

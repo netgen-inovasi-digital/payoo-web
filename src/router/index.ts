@@ -16,42 +16,42 @@ const router = createRouter({
         requiresAuth: true
       },
     },
-    {
-      path: '/products',
-      name: 'Products',
-      component: () => import('../views/Products/ProductList.vue'),
-      meta: {
-        title: 'Products',
-        requiresAuth: true
-      },
-    },
-    {
-      path: '/products/create',
-      name: 'ProductCreate',
-      component: () => import('../views/Products/ProductCreate.vue'),
-      meta: {
-        title: 'Create Product',
-        requiresAuth: true
-      },
-    },
-    {
-      path: '/products/:id',
-      name: 'ProductDetail',
-      component: () => import('../views/Products/ProductDetail.vue'),
-      meta: {
-        title: 'Product Detail',
-        requiresAuth: true
-      },
-    },
-    {
-      path: '/products/:id/edit',
-      name: 'ProductEdit',
-      component: () => import('../views/Products/ProductEdit.vue'),
-      meta: {
-        title: 'Edit Product',
-        requiresAuth: true
-      },
-    },
+    // {
+    //   path: '/products',
+    //   name: 'Products',
+    //   component: () => import('../views/Products/ProductList.vue'),
+    //   meta: {
+    //     title: 'Products',
+    //     requiresAuth: true
+    //   },
+    // },
+    // {
+    //   path: '/products/create',
+    //   name: 'ProductCreate',
+    //   component: () => import('../views/Products/ProductCreate.vue'),
+    //   meta: {
+    //     title: 'Create Product',
+    //     requiresAuth: true
+    //   },
+    // },
+    // {
+    //   path: '/products/:id',
+    //   name: 'ProductDetail',
+    //   component: () => import('../views/Products/ProductDetail.vue'),
+    //   meta: {
+    //     title: 'Product Detail',
+    //     requiresAuth: true
+    //   },
+    // },
+    // {
+    //   path: '/products/:id/edit',
+    //   name: 'ProductEdit',
+    //   component: () => import('../views/Products/ProductEdit.vue'),
+    //   meta: {
+    //     title: 'Edit Product',
+    //     requiresAuth: true
+    //   },
+    // },
     {
       path: '/riwayat',
       name: 'Riwayat',
