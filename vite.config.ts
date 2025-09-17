@@ -7,6 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/app/', // Ganti dengan nama folder tempat aplikasi akan dihosting
   plugins: [
     vue(),
     vueJsx(),
