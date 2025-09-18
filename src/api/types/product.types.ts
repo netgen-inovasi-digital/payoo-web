@@ -1,20 +1,22 @@
 export interface Product {
-  id: string
+  id: number
+  shop_id: number
+  category_id: number
   name: string
   description: string
-  price: number
-  category: string
-  image?: string
-  stock: number
-  status: 'active' | 'inactive'
-  createdAt: string
-  updatedAt: string
+  photo: string
+  cost_price: number
+  selling_price: number
+  created_at: string
+  updated_at: string
 }
 
 export interface ProductFilters {
   search?: string
-  category?: string
-  status?: string
-  priceMin?: number
-  priceMax?: number
+  category_id?: number
+  shop_id?: number
+  cost_price_min?: number
+  cost_price_max?: number
+  selling_price_min?: number
+  selling_price_max?: number
 }
