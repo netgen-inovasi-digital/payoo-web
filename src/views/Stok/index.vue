@@ -1,241 +1,429 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { stockService } from '@/api/services/stock.service'
+import { productService } from '@/api/services/product.service'
+import { useAlert } from '@/composables/useAlert'
+import type { Stock, StockTransaction } from '@/api/types/stock.types'
+import type { Product } from '@/api/types/product.types'
 
-interface StockItem {
-  id: number
-  name: string
-  costPrice: number
-  sellingPrice: number
-  unit: string
-  stock: number
-}
-
-// --- State ---
-const showStockModal = ref(false)
-const isEditing = ref(false)
-const formError = ref('')
-const searchQuery = ref('')
-
-// Modal delete
-const showDeleteModal = ref(false)
-const stockToDelete = ref<StockItem | null>(null)
-
-// Form
-const stockForm = ref<StockItem>({
-  id: 0,
-  name: '',
-  costPrice: 0,
-  sellingPrice: 0,
-  unit: 'Pcs',
-  stock: 0,
+defineOptions({
+  name: 'StockIndex'
 })
 
-// Data stok awal
-const stocks = ref<StockItem[]>([
-  { id: 1, name: 'Roti', costPrice: 2500, sellingPrice: 3000, unit: 'Pcs', stock: 5 },
-  { id: 2, name: 'Daging', costPrice: 2500, sellingPrice: 3000, unit: 'Pcs', stock: 5 },
-  { id: 3, name: 'Keju', costPrice: 2500, sellingPrice: 3000, unit: 'Pcs', stock: 5 },
-  { id: 4, name: 'Selada', costPrice: 2500, sellingPrice: 3000, unit: 'Pcs', stock: 5 },
-  { id: 5, name: 'Saus Tomat', costPrice: 2500, sellingPrice: 3000, unit: 'Pcs', stock: 5 },
-])
+// Composables
+const alert = useAlert()
 
-// --- Methods ---
-const openAddStock = () => {
-  isEditing.value = false
-  stockForm.value = {
-    id: stocks.value.length + 1,
-    name: '',
-    costPrice: 0,
-    sellingPrice: 0,
-    unit: 'Pcs',
-    stock: 0,
-  }
-  formError.value = ''
-  showStockModal.value = true
-}
+// State
+const stocks = ref<Stock[]>([])
+const products = ref<Product[]>([])
+const loading = ref(false)
+const showStockModal = ref(false)
+const editingStock = ref<Stock | null>(null)
+const searchQuery = ref('')
+const selectedProductId = ref<number | null>(null)
+const selectedType = ref<'in' | 'out' | ''>('')
+const dateFrom = ref('')
+const dateTo = ref('')
 
-const openEditStock = (stock: StockItem) => {
-  isEditing.value = true
-  stockForm.value = { ...stock }
-  formError.value = ''
-  showStockModal.value = true
-}
+// Form
+const stockForm = ref<StockTransaction>({
+  product_id: 0,
+  quantity: 1,
+  type: 'in',
+  buy_price: null,
+  notes: '',
+  date: new Date().toISOString().slice(0, 16)
+})
 
-const saveStock = () => {
-  if (!stockForm.value.name) {
-    formError.value = 'Mohon isi semua field yang diperlukan'
-    return
-  }
-
-  if (isEditing.value) {
-    const index = stocks.value.findIndex((p) => p.id === stockForm.value.id)
-    if (index !== -1) {
-      stocks.value[index] = { ...stockForm.value }
-    }
-  } else {
-    stocks.value.push({ ...stockForm.value })
-  }
-
-  showStockModal.value = false
-}
-
-const confirmDeleteStock = (stock: StockItem) => {
-  stockToDelete.value = stock
-  showDeleteModal.value = true
-}
-
-const deleteStockConfirmed = () => {
-  if (stockToDelete.value) {
-    stocks.value = stocks.value.filter((p) => p.id !== stockToDelete.value?.id)
-  }
-  showDeleteModal.value = false
-  stockToDelete.value = null
-}
-
-// --- Computed ---
+// Computed
 const filteredStocks = computed(() => {
-  const query = searchQuery.value.toLowerCase()
-  return stocks.value.filter((stock) => stock.name.toLowerCase().includes(query))
+  return stocks.value.filter(stock => {
+    const matchesSearch = !searchQuery.value || 
+      stock.product_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      stock.notes.toLowerCase().includes(searchQuery.value.toLowerCase())
+    
+    const matchesProduct = !selectedProductId.value || stock.product_id === selectedProductId.value
+    const matchesType = !selectedType.value || stock.type === selectedType.value
+    
+    const matchesDateFrom = !dateFrom.value || new Date(stock.date) >= new Date(dateFrom.value)
+    const matchesDateTo = !dateTo.value || new Date(stock.date) <= new Date(dateTo.value)
+    
+    return matchesSearch && matchesProduct && matchesType && matchesDateFrom && matchesDateTo
+  })
+})
+
+// Methods
+const fetchStocks = async () => {
+  try {
+    loading.value = true
+    const response = await stockService.getStocks()
+    if (response.status === 'success') {
+      stocks.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch stocks:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const fetchProducts = async () => {
+  try {
+    const response = await productService.getProducts()
+    if (response.status === 'success') {
+      products.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch products:', error)
+  }
+}
+
+const openStockModal = () => {
+  editingStock.value = null
+  stockForm.value = {
+    product_id: 0,
+    quantity: 1,
+    type: 'in',
+    buy_price: null,
+    notes: '',
+    date: new Date().toISOString().slice(0, 16)
+  }
+  showStockModal.value = true
+}
+
+const saveStock = async () => {
+  const confirmed = await alert.confirmSave(
+    `transaksi ${stockForm.value.type === 'in' ? 'masuk' : 'keluar'}`,
+    !!editingStock.value
+  )
+
+  if (!confirmed) return
+
+  try {
+    loading.value = true
+    
+    // Add new stock
+    await stockService.createStock(stockForm.value)
+
+    await fetchStocks() // Refresh the list
+    showStockModal.value = false
+    
+    alert.success(
+      'Berhasil!',
+      editingStock.value
+        ? 'Transaksi stock berhasil diupdate.'
+        : 'Transaksi stock berhasil ditambahkan.'
+    )
+  } catch (error) {
+    console.error('Failed to save stock:', error)
+    alert.error(
+      'Gagal!',
+      editingStock.value
+        ? 'Terjadi kesalahan saat mengupdate transaksi.'
+        : 'Terjadi kesalahan saat menyimpan transaksi.'
+    )
+  } finally {
+    loading.value = false
+  }
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleString('id-ID', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR'
+  }).format(amount)
+}
+
+// Watchers
+watch([searchQuery, selectedProductId, selectedType, dateFrom, dateTo], () => {
+  // Filter will be reactive automatically through computed
+}, { deep: true })
+
+// Lifecycle
+onMounted(async () => {
+  await Promise.all([
+    fetchStocks(),
+    fetchProducts()
+  ])
 })
 </script>
 
 <template>
   <AdminLayout>
-    <div class="container mx-auto px-6 py-8">
+    <div class="container mx-auto p-6">
       <!-- Header -->
-      <h2 class="text-2xl font-semibold mb-4">Stok</h2>
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Stock Management</h1>
+        <p class="text-gray-600 mt-2">Kelola stok produk masuk dan keluar</p>
+      </div>
 
-      <!-- Toolbar -->
-      <div class="flex items-center gap-4 mb-6">
-        <!-- Search -->
-        <div class="flex-1">
-          <input v-model="searchQuery" type="text" placeholder="Cari Stok"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" />
+      <!-- Filters -->
+      <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Search -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Cari produk atau catatan..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+            />
+          </div>
+
+          <!-- Product Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Produk</label>
+            <select
+              v-model="selectedProductId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+            >
+              <option value="">Semua Produk</option>
+              <option v-for="product in products" :key="product.id" :value="product.id">
+                {{ product.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Type Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
+            <select
+              v-model="selectedType"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+            >
+              <option value="">Semua Tipe</option>
+              <option value="in">Masuk</option>
+              <option value="out">Keluar</option>
+            </select>
+          </div>
+
+          <!-- Action Button -->
+          <div class="flex items-end">
+            <button
+              @click="openStockModal"
+              class="w-full px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 flex items-center justify-center gap-2"
+            >
+              <span class="text-xl">+</span>
+              Tambah Transaksi
+            </button>
+          </div>
         </div>
 
-        <!-- Total Stok -->
-        <div class="text-gray-600 whitespace-nowrap">Total Stok : {{ stocks.length }}</div>
-
-        <!-- Tambah -->
-        <button @click="openAddStock"
-          class="ml-auto px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600">
-          Tambah Stok
-        </button>
-      </div>
-
-      <!-- Table -->
-      <div class="bg-white rounded-lg shadow overflow-x-auto">
-        <table class="min-w-full">
-          <thead>
-            <tr class="bg-gray-50">
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">No</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nama</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Modal</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Jual</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Satuan</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Stok</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr v-for="stock in filteredStocks" :key="stock.id">
-              <td class="px-6 py-4 text-sm text-gray-500">{{ stock.id }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ stock.name }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">Rp{{ stock.costPrice.toLocaleString() }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">Rp{{ stock.sellingPrice.toLocaleString() }}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">{{ stock.unit }}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">{{ stock.stock }}</td>
-              <td class="px-6 py-4 text-sm">
-                <div class="flex gap-2">
-                  <button @click="confirmDeleteStock(stock)" class="text-red-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                  <button @click="openEditStock(stock)" class="text-blue-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Stock Modal -->
-    <div v-if="showStockModal" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg w-full max-w-2xl p-6 shadow-xl">
-        <h3 class="text-lg font-semibold mb-4">{{ isEditing ? 'Edit Stok' : 'Tambah Stok' }}</h3>
-
-        <div class="space-y-4">
-          <!-- Stock Name -->
+        <!-- Date Range -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Stok</label>
-            <input v-model="stockForm.name" type="text" class="w-full px-3 py-2 border rounded-lg" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+            <input
+              v-model="dateFrom"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+            />
           </div>
-
-          <!-- Prices -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Harga Modal</label>
-              <input v-model.number="stockForm.costPrice" type="number" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Harga Jual</label>
-              <input v-model.number="stockForm.sellingPrice" type="number" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+            <input
+              v-model="dateTo"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+            />
           </div>
+        </div>
+      </div>
 
-          <!-- Unit and Stock -->
-          <div class="grid grid-cols-2 gap-4">
+      <!-- Stock Table -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-3 bg-gray-50 border-b">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Riwayat Transaksi Stock</h3>
+            <span class="text-sm text-gray-600">
+              Total: {{ filteredStocks.length }} transaksi
+            </span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tanggal
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Produk
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tipe
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Quantity
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Harga Beli
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Catatan
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-if="loading">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                  Loading...
+                </td>
+              </tr>
+              <tr v-else-if="filteredStocks.length === 0">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                  Tidak ada data transaksi stock
+                </td>
+              </tr>
+              <tr v-else v-for="stock in filteredStocks" :key="stock.id" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatDate(stock.date) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ stock.product_name }}</div>
+                  <div class="text-sm text-gray-500">ID: {{ stock.product_id }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span :class="[
+                    'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
+                    stock.type === 'in' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  ]">
+                    {{ stock.type === 'in' ? 'Masuk' : 'Keluar' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ stock.quantity }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ stock.buy_price ? formatCurrency(stock.buy_price) : '-' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <div class="max-w-xs truncate" :title="stock.notes">
+                    {{ stock.notes }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add/Edit Stock Modal -->
+      <div v-if="showStockModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg w-full max-w-lg p-6">
+          <h3 class="text-xl font-semibold mb-4">
+            {{ editingStock ? 'Edit Transaksi Stock' : 'Tambah Transaksi Stock' }}
+          </h3>
+
+          <form @submit.prevent="saveStock" class="space-y-4">
+            <!-- Product Selection -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Satuan</label>
-              <select v-model="stockForm.unit" class="w-full px-3 py-2 border rounded-lg">
-                <option value="Pcs">Pcs</option>
-                <option value="Kg">Kg</option>
-                <option value="Gram">Gram</option>
-                <option value="Liter">Liter</option>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Produk *</label>
+              <select
+                v-model="stockForm.product_id"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              >
+                <option value="">Pilih Produk</option>
+                <option v-for="product in products" :key="product.id" :value="product.id">
+                  {{ product.name }}
+                </option>
               </select>
             </div>
+
+            <!-- Transaction Type -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Stok</label>
-              <input v-model.number="stockForm.stock" type="number" class="w-full px-3 py-2 border rounded-lg" />
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi *</label>
+              <select
+                v-model="stockForm.type"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              >
+                <option value="">Pilih Tipe</option>
+                <option value="in">Masuk</option>
+                <option value="out">Keluar</option>
+              </select>
             </div>
-          </div>
 
-          <p v-if="formError" class="text-red-500 text-sm">{{ formError }}</p>
-        </div>
+            <!-- Quantity -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+              <input
+                v-model.number="stockForm.quantity"
+                type="number"
+                min="1"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              />
+            </div>
 
-        <div class="mt-6 flex justify-end gap-3">
-          <button @click="showStockModal = false" class="px-4 py-2 text-gray-600 border rounded-lg">Batal</button>
-          <button @click="saveStock" class="px-4 py-2 bg-emerald-500 text-white rounded-lg">
-            {{ isEditing ? 'Simpan' : 'Tambah' }}
-          </button>
-        </div>
-      </div>
-    </div>
+            <!-- Buy Price (only for 'in' type) -->
+            <div v-if="stockForm.type === 'in'">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli</label>
+              <input
+                v-model.number="stockForm.buy_price"
+                type="number"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              />
+            </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg w-full max-w-sm p-6 text-center shadow-xl">
-        <h3 class="text-lg font-semibold mb-2 text-gray-900">Konfirmasi Hapus</h3>
-        <p class="text-gray-600 mb-6">
-          Apakah Anda yakin ingin menghapus <span class="font-semibold">{{ stockToDelete?.name }}</span>?
-        </p>
+            <!-- Date -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal *</label>
+              <input
+                v-model="stockForm.date"
+                type="datetime-local"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              />
+            </div>
 
-        <div class="flex justify-center gap-3">
-          <button @click="showDeleteModal = false" class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100">
-            Batal
-          </button>
-          <button @click="deleteStockConfirmed" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-            Hapus
-          </button>
+            <!-- Notes -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Catatan *</label>
+              <textarea
+                v-model="stockForm.notes"
+                required
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                placeholder="Catatan transaksi..."
+              ></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                @click="showStockModal = false"
+                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                :disabled="loading"
+                class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50"
+              >
+                <span v-if="loading">Menyimpan...</span>
+                <span v-else>{{ editingStock ? 'Update' : 'Simpan' }}</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
