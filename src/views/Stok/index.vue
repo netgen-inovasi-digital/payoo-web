@@ -19,7 +19,6 @@ const stocks = ref<Stock[]>([])
 const products = ref<Product[]>([])
 const loading = ref(false)
 const showStockModal = ref(false)
-const editingStock = ref<Stock | null>(null)
 const searchQuery = ref('')
 const selectedProductId = ref<number | null>(null)
 const selectedType = ref<'in' | 'out' | ''>('')
@@ -80,7 +79,6 @@ const fetchProducts = async () => {
 }
 
 const openStockModal = () => {
-  editingStock.value = null
   stockForm.value = {
     product_id: 0,
     quantity: 1,
@@ -95,7 +93,7 @@ const openStockModal = () => {
 const saveStock = async () => {
   const confirmed = await alert.confirmSave(
     `transaksi ${stockForm.value.type === 'in' ? 'masuk' : 'keluar'}`,
-    !!editingStock.value
+    false
   )
 
   if (!confirmed) return
@@ -111,17 +109,13 @@ const saveStock = async () => {
     
     alert.success(
       'Berhasil!',
-      editingStock.value
-        ? 'Transaksi stock berhasil diupdate.'
-        : 'Transaksi stock berhasil ditambahkan.'
+      'Transaksi stock berhasil ditambahkan.'
     )
   } catch (error) {
     console.error('Failed to save stock:', error)
     alert.error(
-      'Gagal!',
-      editingStock.value
-        ? 'Terjadi kesalahan saat mengupdate transaksi.'
-        : 'Terjadi kesalahan saat menyimpan transaksi.'
+      'Error!', 
+      'Terjadi kesalahan saat menyimpan transaksi.'
     )
   } finally {
     loading.value = false
@@ -327,7 +321,7 @@ onMounted(async () => {
       <div v-if="showStockModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg w-full max-w-lg p-6">
           <h3 class="text-xl font-semibold mb-4">
-            {{ editingStock ? 'Edit Transaksi Stock' : 'Tambah Transaksi Stock' }}
+            Tambah Transaksi Stock
           </h3>
 
           <form @submit.prevent="saveStock" class="space-y-4">
@@ -420,7 +414,7 @@ onMounted(async () => {
                 class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50"
               >
                 <span v-if="loading">Menyimpan...</span>
-                <span v-else>{{ editingStock ? 'Update' : 'Simpan' }}</span>
+                <span v-else>Simpan</span>
               </button>
             </div>
           </form>

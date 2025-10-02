@@ -5,84 +5,27 @@
       <div class="grid grid-cols-12 gap-6">
         <!-- Left side - Orders and Products -->
         <div class="col-span-8">
-          <!-- Orders List -->
-          <div class="mb-8 orders-list">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-2xl font-semibold">Daftar Pesanan</h2>
-              <div class="flex gap-2">
-                <button v-for="status in ['All', 'Ready', 'In Progress', 'Done']" :key="status"
-                  @click="filterStatus = status" class="px-4 py-2 rounded-full text-sm" :class="{
-                    'bg-emerald-500 text-white': status === filterStatus,
-                    'border border-emerald-500 text-emerald-500': status !== filterStatus
-                  }">
-                  {{ status }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Scroll Indicators -->
-            <div class="relative">
-              <!-- Left shadow when scrollable -->
-              <div
-                class="absolute left-0 top-0 bottom-4 w-6 bg-gradient-to-r from-white to-transparent pointer-events-none">
-              </div>
-              <!-- Right shadow when scrollable -->
-              <div
-                class="absolute right-0 top-0 bottom-4 w-6 bg-gradient-to-l from-white to-transparent pointer-events-none">
-              </div>
-            </div>
-
-            <!-- Order Cards - Horizontal Scrollable -->
-            <div class="overflow-x-auto pb-4 -mx-6">
-              <div class="flex gap-4 px-6 min-w-max">
-                <div v-for="order in sortedOrders" :key="order.orderNumber"
-                  class="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-lg transition-shadow w-80"
-                  @click="openStatusUpdate(order)">
-                  <div class="flex justify-between items-center mb-2">
-                    <span class="font-medium">{{ order.customerName }}</span>
-                    <span class="px-3 py-1 rounded-full text-sm" :class="{
-                      'bg-emerald-100 text-emerald-500': order.status === 'Ready',
-                      'bg-yellow-100 text-yellow-500': order.status === 'In Progress',
-                      'bg-blue-100 text-blue-500': order.status === 'Done'
-                    }">
-                      {{ order.status }}
-                    </span>
-                  </div>
-
-                  <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Order Number</span>
-                      <span>{{ order.orderNumber }}</span>
-                    </div>
-
-                    <div v-for="item in order.items" :key="item.product.id">
-                      <div class="flex justify-between text-sm">
-                        <span>{{ item.product.name }}</span>
-                        <span>{{ item.quantity }} pcs</span>
-                      </div>
-                    </div>
-
-                    <div class="flex justify-between font-medium pt-2 border-t">
-                      <span>Total</span>
-                      <span class="text-emerald-500">Rp. {{ order.total.toLocaleString() }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <!-- Category and Products -->
           <div>
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-2xl font-semibold">Produk</h2>
               <div class="flex gap-2">
-                <button v-for="category in categories" :key="category" @click="selectedCategory = category"
-                  class="px-4 py-2 rounded-full text-sm" :class="{
-                    'bg-emerald-500 text-white': selectedCategory === category,
-                    'border border-emerald-500 text-emerald-500': selectedCategory !== category
-                  }">
-                  {{ category }}
+                <button @click="clearCategoryFilter" :class="[
+                  'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-gray-50',
+                  selectedCategory === null
+                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                    : 'border-gray-300 text-gray-600'
+                ]">
+                  Semua Kategori
+                </button>
+                <button v-for="category in categories" :key="category.id" @click="filterByCategory(category.id)" :class="[
+                  'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-brand-50',
+                  selectedCategory === category.id
+                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                    : 'border-brand-500 text-brand-600'
+                ]">
+                  {{ category.name }}
                 </button>
               </div>
             </div>
@@ -96,11 +39,11 @@
                   <span class="text-xl">+</span>
                 </button>
 
-                <img :src="product.image" :alt="product.name" class="w-full h-40 object-cover rounded-lg mb-3">
+                <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-40 object-cover rounded-lg mb-3">
                 <h3 class="font-medium mb-2">{{ product.name }}</h3>
                 <div class="flex justify-between items-center">
-                  <span class="text-emerald-500 font-medium">Rp. {{ product.price.toLocaleString() }}</span>
-                  <span class="text-gray-500 text-sm">/ {{ product.unit }}</span>
+                  <span class="text-emerald-500 font-medium">Rp. {{ product.selling_price.toLocaleString() }}</span>
+                  <span class="text-gray-500 text-sm">/ Pcs</span>
                 </div>
               </div>
             </div>
@@ -116,15 +59,28 @@
 
             <!-- Cart Items -->
             <div class="space-y-4 mb-6">
-              <div v-for="item in cartItems" :key="item.product.id" class="flex items-center gap-4">
-                <img :src="item.product.image || '/images/product/default.jpg'" :alt="item.product.name"
+              <!-- Empty Cart Message -->
+              <div v-if="cartItems.length === 0" class="text-center py-8">
+                <div class="text-gray-400 mb-2">
+                  <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <p class="text-gray-500 font-medium">Silahkan pilih produk</p>
+                <p class="text-gray-400 text-sm">Pilih produk dari menu sebelah kiri</p>
+              </div>
+
+              <!-- Cart Items List -->
+              <div v-else v-for="item in cartItems" :key="item.product.id" class="flex items-center gap-4">
+                <img :src="item.product.photo || '/images/product/default.jpg'" :alt="item.product.name"
                   class="w-16 h-16 object-cover rounded-lg">
                 <div class="flex-1">
                   <h4 class="font-medium">{{ item.product.name }}</h4>
                   <div class="flex justify-between items-center">
-                    <span>Rp. {{ item.product.price.toLocaleString() }}</span>
+                    <span>Rp. {{ item.product.selling_price.toLocaleString() }}</span>
                     <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm">
-                      Remove
+                      Hapus
                     </button>
                   </div>
                 </div>
@@ -142,34 +98,41 @@
               </div>
             </div>
 
-            <!-- Customer and Cashier Inputs -->
-            <div class="space-y-4 mb-6">
+            <!-- Inputs -->
+            <div v-if="cartItems.length > 0" class="space-y-4 mb-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-                <input v-model="customerName" type="text" placeholder="Enter customer name"
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cashier</label>
-                <select v-model="cashierName"
+                <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran</label>
+                <select v-model="orderForm.payment_method"
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
-                  <option value="">Select cashier</option>
-                  <option v-for="cashier in cashiers" :key="cashier" :value="cashier">
-                    {{ cashier }}
+                  <option value="">Pilih metode pembayaran</option>
+                  <option v-for="method in paymentMethods" :key="method.id" :value="method.id">
+                    {{ method.name }}
                   </option>
                 </select>
+              </div>
+              <div v-if ="orderForm.payment_method === 'cash'">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Dibayar</label>
+                <input type="number" v-model="orderForm.amount_paid"
+                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="Masukkan jumlah yang dibayar..." />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                <textarea v-model="orderForm.notes" rows="2"
+                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="Masukkan catatan untuk pesanan..."></textarea>
               </div>
             </div>
 
             <!-- Order Summary -->
-            <div class="space-y-2 mb-6">
+            <div v-if="cartItems.length > 0" class="space-y-2 mb-6">
               <div class="flex justify-between">
                 <span>Subtotal</span>
                 <span>Rp. {{ subtotal.toLocaleString() }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Tax</span>
-                <span>10%</span>
+                <span>Rp. {{ tax.toLocaleString() }}</span>
               </div>
               <div class="flex justify-between font-medium text-lg pt-2 border-t">
                 <span>Total</span>
@@ -178,95 +141,12 @@
             </div>
 
             <!-- Checkout Button -->
-            <button @click="checkout"
+            <button v-if="cartItems.length > 0" @click="checkout"
               class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="cartItems.length === 0 || !isFormValid">
               Checkout
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Payment Method Modal -->
-    <div v-if="showPaymentModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg w-full max-w-md p-6">
-        <h3 class="text-xl font-semibold mb-4">Select Payment Method</h3>
-
-        <div class="space-y-3 mb-6">
-          <button v-for="method in paymentMethods" :key="method.id" @click="selectedPaymentMethod = method.id"
-            class="w-full p-4 rounded-lg border-2 flex items-center gap-3" :class="{
-              'border-emerald-500 bg-emerald-50': selectedPaymentMethod === method.id,
-              'border-gray-200': selectedPaymentMethod !== method.id
-            }">
-            <span class="text-2xl">{{ method.icon }}</span>
-            <span class="font-medium">{{ method.name }}</span>
-          </button>
-        </div>
-
-        <div class="space-y-3 mb-6">
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-600">Subtotal</span>
-            <span>Rp. {{ subtotal.toLocaleString() }}</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-600">Tax (10%)</span>
-            <span>Rp. {{ tax.toLocaleString() }}</span>
-          </div>
-          <div class="flex justify-between font-medium text-lg pt-3 border-t">
-            <span>Total</span>
-            <span class="text-emerald-500">Rp. {{ total.toLocaleString() }}</span>
-          </div>
-        </div>
-
-        <div class="flex gap-3">
-          <button @click="showPaymentModal = false" class="flex-1 py-3 border border-gray-300 rounded-lg font-medium"
-            :disabled="isProcessingPayment">
-            Cancel
-          </button>
-          <button @click="processPayment"
-            class="flex-1 py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50"
-            :disabled="!selectedPaymentMethod || isProcessingPayment">
-            <span v-if="isProcessingPayment">Processing...</span>
-            <span v-else>Pay Now</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Status Update Modal -->
-    <div v-if="showStatusModal && selectedOrder"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg w-full max-w-md p-6">
-        <h3 class="text-xl font-semibold mb-4">Update Order Status</h3>
-
-        <div class="mb-4">
-          <div class="text-sm text-gray-600 mb-2">Order #{{ selectedOrder.orderNumber }}</div>
-          <div class="font-medium mb-1">{{ selectedOrder.customerName }}</div>
-          <div class="text-sm text-gray-600">
-            {{ selectedOrder.items.length }} items •
-            Rp. {{ selectedOrder.total.toLocaleString() }}
-          </div>
-        </div>
-
-        <div class="space-y-3 mb-6">
-          <button v-for="status in orderStatuses" :key="status" @click="updateOrderStatus(status)"
-            class="w-full p-4 rounded-lg border-2 flex items-center justify-between" :class="{
-              'border-emerald-500 bg-emerald-50': selectedOrder.status === status,
-              'border-gray-200 hover:border-gray-300': selectedOrder.status !== status
-            }">
-            <span class="font-medium">{{ status }}</span>
-            <span class="w-3 h-3 rounded-full" :class="{
-              'bg-emerald-500': selectedOrder.status === status,
-              'bg-gray-200': selectedOrder.status !== status
-            }"></span>
-          </button>
-        </div>
-
-        <div class="flex justify-end">
-          <button @click="showStatusModal = false" class="px-6 py-2 border border-gray-300 rounded-lg font-medium">
-            Close
-          </button>
         </div>
       </div>
     </div>
@@ -282,7 +162,7 @@
         <h3 class="text-xl font-semibold mb-2">Payment Successful!</h3>
         <p class="text-gray-600 mb-4">Your order has been processed successfully.</p>
         <div class="text-sm text-emerald-500">
-          Order #{{ orders[orders.length - 1]?.orderNumber }} has been created
+          Order #{{ orders[orders.length - 1]?.id }} has been created
         </div>
       </div>
     </div>
@@ -290,156 +170,112 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import { useRouter } from 'vue-router'
+import { orderService, type OrderCreatePayload } from '@/api/services/order.service'
+import { productService } from '@/api/services/product.service'
+import { categoryService } from '@/api/services/category.service'
+import type { Product } from '@/api/types/product.types'
+import type { Category } from '@/api/types/category.types'
+import type { Order } from '@/api/types/order.types'
+import { useAlert } from '@/composables/useAlert'
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  unit: string;
-}
+defineOptions({
+  name: 'OrderPOS'
+})
+
+const alert = useAlert()
 
 interface OrderItem {
   product: Product;
   quantity: number;
 }
 
-interface Order {
-  orderNumber: string;
-  customerName: string;
-  items: OrderItem[];
-  status: 'Ready' | 'In Progress' | 'Done';
-  total: number;
-}
-
-const router = useRouter()
-
 // Modal states
-const showPaymentModal = ref(false)
 const showSuccessModal = ref(false)
-const showStatusModal = ref(false)
-const selectedPaymentMethod = ref('')
 const isProcessingPayment = ref(false)
-const selectedOrder = ref<Order | null>(null)
-
-const orderStatuses = ['Ready', 'In Progress', 'Done'] as const
-type OrderStatus = typeof orderStatuses[number]
+const loading = ref(false)
 
 // Payment methods
 const paymentMethods = [
-  { id: 'cash', name: 'Cash', icon: '💵' },
-  { id: 'qris', name: 'QRIS', icon: '📱' },
-  { id: 'card', name: 'Credit/Debit Card', icon: '💳' }
+  { id: 'cash', name: 'Cash'},
+  { id: 'gopay', name: 'GoPay'},
+  { id: 'ovo', name: 'OVO'},
+  { id: 'dana', name: 'DANA'},
+  { id: 'qris', name: 'QRIS'}
 ]
 
-// Product data
-const products = ref<Product[]>([
-  {
-    id: '1',
-    name: 'Omelette',
-    price: 15000,
-    image: '/images/product/omelette.jpg',
-    category: 'Food',
-    unit: 'Pcs'
-  },
-  {
-    id: '2',
-    name: 'Chicken Noodle',
-    price: 18000,
-    image: '/images/product/chicken-noodle.jpg',
-    category: 'Food',
-    unit: 'Pcs'
-  },
-  {
-    id: '3',
-    name: 'Meatball',
-    price: 17000,
-    image: '/images/product/meatball.jpg',
-    category: 'Food',
-    unit: 'Pcs'
-  }
-])
-
-// Orders data
-const orders = ref<Order[]>([
-  {
-    orderNumber: '004',
-    customerName: 'Ridha',
-    items: [
-      { product: products.value[0], quantity: 1 }, // Omelette
-      { product: { id: '4', name: 'Meatball', price: 15000, image: '', category: 'Food', unit: 'Pcs' }, quantity: 1 },
-      { product: { id: '5', name: 'Ice Tea', price: 9000, image: '', category: 'Beverage', unit: 'Pcs' }, quantity: 2 }
-    ],
-    status: 'Ready',
-    total: 48000
-  },
-  {
-    orderNumber: '006',
-    customerName: 'Anhar',
-    items: [
-      { product: products.value[0], quantity: 1 },
-      { product: { id: '4', name: 'Meatball', price: 15000, image: '', category: 'Food', unit: 'Pcs' }, quantity: 1 },
-      { product: { id: '5', name: 'Ice Tea', price: 9000, image: '', category: 'Beverage', unit: 'Pcs' }, quantity: 2 }
-    ],
-    status: 'In Progress',
-    total: 48000
-  }
-])
+// Data
+const products = ref<Product[]>([])
+const categories = ref<Category[]>([])
+const orders = ref<Order[]>([])
 
 // Cart state
 const cartItems = ref<OrderItem[]>([])
-const selectedCategory = ref('All')
-const filterStatus = ref('All')
-const categories = ['All', 'Promo', 'Food', 'Beverage', 'Desserts']
-const customerName = ref('')
-const cashierName = ref('')
-const cashiers = [
-  'Rahmat',
-  'Anisa',
-  'Budi',
-  'Diana'
-]
+const selectedCategory = ref<number | null>(null)
+
+// Order form
+const orderForm = ref({
+  payment_method: '',
+  notes: '',
+  amount_paid: 0
+})
 
 // Form validation
 const isFormValid = computed(() => {
-  return customerName.value.trim() !== '' && cashierName.value !== ''
+  return orderForm.value.payment_method !== ''
 })
+
+// Fetch products from API
+const fetchProducts = async () => {
+  try {
+    loading.value = true
+    const response = await productService.getProducts()
+    products.value = response.data || []
+  } catch (error) {
+    console.error('Failed to fetch products:', error)
+    alert.error('Error!', 'Gagal mengambil data produk.')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Fetch categories from API
+const fetchCategories = async () => {
+  try {
+    const response = await categoryService.getCategories()
+    if (response.status === 'success') {
+      categories.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch categories:', error)
+    alert.error('Error!', 'Gagal mengambil data kategori.')
+  }
+}
 
 // Computed properties
 const filteredProducts = computed(() => {
-  if (selectedCategory.value === 'All') return products.value
-  return products.value.filter(product => product.category === selectedCategory.value)
-})
-
-const filteredOrders = computed(() => {
-  if (filterStatus.value === 'All') return orders.value
-  return orders.value.filter(order => order.status === filterStatus.value)
-})
-
-// Sort orders by status: In Progress -> Ready -> Done
-const sortedOrders = computed(() => {
-  const statusOrder = {
-    'In Progress': 0,
-    'Ready': 1,
-    'Done': 2
-  }
-
-  return filteredOrders.value.slice().sort((a, b) => {
-    return statusOrder[a.status] - statusOrder[b.status]
+  return products.value.filter(product => {
+    const matchesCategory = selectedCategory.value === null || product.category_id === selectedCategory.value
+    return matchesCategory
   })
 })
 
 const subtotal = computed(() => {
-  return cartItems.value.reduce((sum, item) => sum + (item.product.price * item.quantity), 0)
+  return cartItems.value.reduce((sum, item) => sum + (item.product.selling_price * item.quantity), 0)
 })
 
-const tax = computed(() => subtotal.value * 0.1)
+const tax = computed(() => 0)
 const total = computed(() => subtotal.value + tax.value)
+
+// Filter methods
+const filterByCategory = (categoryId: number) => {
+  selectedCategory.value = selectedCategory.value === categoryId ? null : categoryId
+}
+
+const clearCategoryFilter = () => {
+  selectedCategory.value = null
+}
 
 // Methods
 const addToCart = (product: Product) => {
@@ -451,14 +287,14 @@ const addToCart = (product: Product) => {
   }
 }
 
-const removeFromCart = (productId: string) => {
+const removeFromCart = (productId: number) => {
   const index = cartItems.value.findIndex(item => item.product.id === productId)
   if (index !== -1) {
     cartItems.value.splice(index, 1)
   }
 }
 
-const updateQuantity = (productId: string, increment: boolean) => {
+const updateQuantity = (productId: number, increment: boolean) => {
   const item = cartItems.value.find(item => item.product.id === productId)
   if (item) {
     if (increment) {
@@ -472,88 +308,103 @@ const updateQuantity = (productId: string, increment: boolean) => {
   }
 }
 
-const checkout = () => {
+const checkout = async () => {
   if (cartItems.value.length === 0) return
   if (!isFormValid.value) {
-    alert('Please enter customer name and select cashier')
+    alert.error('Error!', 'Silahkan pilih metode pembayaran terlebih dahulu')
     return
   }
-  showPaymentModal.value = true
-}
 
-const openStatusUpdate = (order: Order) => {
-  selectedOrder.value = order
-  showStatusModal.value = true
-}
+  // Konfirmasi pesanan dengan Sweet Alert
+  const confirmed = await alert.confirm({
+    title: 'Konfirmasi Pesanan',
+    text: `Total pesanan: Rp. ${total.value.toLocaleString()}\nMetode pembayaran: ${paymentMethods.find(m => m.id === orderForm.value.payment_method)?.name || orderForm.value.payment_method}\nApakah Anda yakin ingin melanjutkan?`,
+    icon: 'question',
+    confirmButtonText: 'Ya, Proses!',
+    cancelButtonText: 'Batal'
+  })
 
-const updateOrderStatus = (newStatus: OrderStatus) => {
-  if (!selectedOrder.value) return
-
-  // Find and update the order in the orders array
-  const orderToUpdate = orders.value.find(o => o.orderNumber === selectedOrder.value?.orderNumber)
-  if (orderToUpdate) {
-    orderToUpdate.status = newStatus
+  if (confirmed) {
+    await processPayment()
   }
-
-  // Close the modal
-  showStatusModal.value = false
-  selectedOrder.value = null
 }
 
 const processPayment = async () => {
-  if (!selectedPaymentMethod.value || !isFormValid.value) return
+  if (!orderForm.value.payment_method || !isFormValid.value) return
 
   isProcessingPayment.value = true
 
   try {
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    // Calculate payment details
+    let finalAmountPaid: number
+    let changeMoney: number
 
-    // Create new order
-    const newOrder: Order = {
-      orderNumber: String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
-      customerName: customerName.value,
-      items: [...cartItems.value],
-      status: 'Ready',
-      total: total.value
+    if (orderForm.value.payment_method === 'cash') {
+      // For cash payment, use user input or default to total
+      finalAmountPaid = orderForm.value.amount_paid || total.value
+      changeMoney = finalAmountPaid - total.value
+    } else {
+      // For non-cash payments, amount paid equals total (no change)
+      finalAmountPaid = total.value
+      changeMoney = 0
     }
 
-    // Add to orders list
-    orders.value.push(newOrder)
-
-    // Create transaction for report
-    const transaction = {
-      id: newOrder.orderNumber,
-      date: new Date().toLocaleDateString('id-ID'),
-      cashier: cashierName.value,
-      customer: newOrder.customerName,
-      items: newOrder.items.reduce((sum, item) => sum + item.quantity, 0),
-      revenue: newOrder.total
+    // Prepare order data for API
+    const orderData: OrderCreatePayload = {
+      status: 'pending',
+      notes: orderForm.value.notes,
+      total: total.value,
+      amount_paid: finalAmountPaid,
+      change_money: changeMoney > 0 ? changeMoney : 0,
+      tax: tax.value,
+      payment_method: orderForm.value.payment_method,
+      order_items: cartItems.value.map(item => ({
+        product_id: item.product.id,
+        quantity: item.quantity,
+        price: item.product.selling_price
+      }))
     }
 
-    // Close payment modal and show success
-    showPaymentModal.value = false
+    // Create order via API
+    const response = await orderService.createOrder(orderData)
+
+    // Add to local orders list (use the actual order from API response)
+    orders.value.push(response.data)
+
+    // Show success
     showSuccessModal.value = true
 
     // Reset states
-    selectedPaymentMethod.value = ''
+    orderForm.value = {
+      payment_method: '',
+      notes: '',
+      amount_paid: 0
+    }
     cartItems.value = []
 
-    // Auto close success modal and scroll to orders list after 2 seconds
+    // Show success message
+    alert.success('Berhasil!', 'Order berhasil dibuat!')
+
+    // Auto close success modal after 2 seconds
     setTimeout(() => {
       showSuccessModal.value = false
-      // Scroll to the orders list
-      document.querySelector('.orders-list')?.scrollIntoView({ behavior: 'smooth' })
-      // Reset filter to show all orders
-      filterStatus.value = 'All'
     }, 2000)
 
   } catch (error) {
     console.error('Payment failed:', error)
+    alert.error('Error!', 'Gagal memproses pembayaran.')
   } finally {
     isProcessingPayment.value = false
   }
 }
+
+// Initialize data
+onMounted(async () => {
+  await Promise.all([
+    fetchProducts(),
+    fetchCategories()
+  ])
+})
 </script>
 
 <style scoped>
