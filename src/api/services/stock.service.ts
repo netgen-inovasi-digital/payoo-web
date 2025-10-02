@@ -8,6 +8,11 @@ export const stockService = {
     return response.data
   },
 
+  async getPembelian(): Promise<ApiResponse<Stock[]>> {
+    const response = await api.get('/stocks?type=in')
+    return response.data
+  },
+
   async createStock(stockData: StockTransaction): Promise<ApiResponse<Stock>> {
     const response = await api.post('/stocks', stockData)
     return response.data

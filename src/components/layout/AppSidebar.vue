@@ -147,7 +147,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { faBoxArchive, faBoxesPacking, faCashRegister, faGauge, faReceipt } from "@fortawesome/free-solid-svg-icons";
+import { faBoxArchive, faBoxesPacking, faCashRegister, faGauge, faReceipt, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
@@ -197,14 +197,19 @@ const menuGroups: MenuGroup[] = [
         path: '/produk'
       },
       {
+        icon: faTruck,
+        name: "Pembelian Barang",
+        path: '/pembelian'
+      },
+      {
         icon: faBoxArchive,
         name: "Manajemen Stok",
         path: '/stok'
       },
       {
         icon: faReceipt,
-        name: "Riwayat Transaksi",
-        path: '/riwayat'
+        name: "Laporan",
+        path: '/laporan'
       },
     ],
   },

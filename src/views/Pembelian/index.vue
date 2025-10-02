@@ -8,7 +8,7 @@ import type { Stock, StockTransaction } from '@/api/types/stock.types'
 import type { Product } from '@/api/types/product.types'
 
 defineOptions({
-  name: 'StockIndex'
+  name: 'PembelianIndex'
 })
 
 // Composables
@@ -21,7 +21,7 @@ const loading = ref(false)
 const showStockModal = ref(false)
 const searchQuery = ref('')
 const selectedProductId = ref<number | null>(null)
-const selectedType = ref<'in' | 'out' | ''>('')
+const selectedProductType = ref<string | null>(null)
 const dateFrom = ref('')
 const dateTo = ref('')
 
@@ -43,12 +43,12 @@ const filteredStocks = computed(() => {
       stock.notes.toLowerCase().includes(searchQuery.value.toLowerCase())
     
     const matchesProduct = !selectedProductId.value || stock.product_id === selectedProductId.value
-    const matchesType = !selectedType.value || stock.type === selectedType.value
+    const matchesProductType = !selectedProductType.value || stock.product_type === selectedProductType.value
     
     const matchesDateFrom = !dateFrom.value || new Date(stock.date) >= new Date(dateFrom.value)
     const matchesDateTo = !dateTo.value || new Date(stock.date) <= new Date(dateTo.value)
     
-    return matchesSearch && matchesProduct && matchesType && matchesDateFrom && matchesDateTo
+    return matchesSearch && matchesProduct && matchesProductType && matchesDateFrom && matchesDateTo
   })
 })
 
@@ -56,7 +56,7 @@ const filteredStocks = computed(() => {
 const fetchStocks = async () => {
   try {
     loading.value = true
-    const response = await stockService.getStocks()
+    const response = await stockService.getPembelian()
     if (response.status === 'success') {
       stocks.value = response.data
     }
@@ -92,7 +92,7 @@ const openStockModal = () => {
 
 const saveStock = async () => {
   const confirmed = await alert.confirmSave(
-    `transaksi ${stockForm.value.type === 'in' ? 'masuk' : 'keluar'}`,
+    'pembelian produk',
     false
   )
 
@@ -109,7 +109,7 @@ const saveStock = async () => {
     
     alert.success(
       'Berhasil!',
-      'Transaksi stock berhasil ditambahkan.'
+      'Pembelian produk berhasil ditambahkan.'
     )
   } catch (error) {
     console.error('Failed to save stock:', error)
@@ -139,8 +139,19 @@ const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
+const formatProductType = (type: string) => {
+  switch (type) {
+    case 'composition':
+      return 'Komposisi'
+    case 'product':
+      return 'Produk'
+    default:
+      return type
+  }
+}
+
 // Watchers
-watch([searchQuery, selectedProductId, selectedType, dateFrom, dateTo], () => {
+watch([searchQuery, selectedProductId, selectedProductType, dateFrom, dateTo], () => {
   // Filter will be reactive automatically through computed
 }, { deep: true })
 
@@ -158,8 +169,8 @@ onMounted(async () => {
     <div class="container mx-auto p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Stock Management</h1>
-        <p class="text-gray-600 mt-2">Kelola stok produk masuk dan keluar</p>
+        <h1 class="text-3xl font-bold text-gray-900">Pembelian</h1>
+        <p class="text-gray-600 mt-2">Kelola pembelian dan stok masuk produk</p>
       </div>
 
       <!-- Filters -->
@@ -190,16 +201,16 @@ onMounted(async () => {
             </select>
           </div>
 
-          <!-- Type Filter -->
+          <!-- Product Type Filter -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Produk</label>
             <select
-              v-model="selectedType"
+              v-model="selectedProductType"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
             >
               <option value="">Semua Tipe</option>
-              <option value="in">Masuk</option>
-              <option value="out">Keluar</option>
+              <option value="composition">Komposisi</option>
+              <option value="product">Produk</option>
             </select>
           </div>
 
@@ -210,7 +221,7 @@ onMounted(async () => {
               class="w-full px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 flex items-center justify-center gap-2"
             >
               <span class="text-xl">+</span>
-              Tambah Transaksi
+              Tambah Pembelian
             </button>
           </div>
         </div>
@@ -240,9 +251,9 @@ onMounted(async () => {
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="px-4 py-3 bg-gray-50 border-b">
           <div class="flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Riwayat Transaksi Stock</h3>
+            <h3 class="text-lg font-medium text-gray-900">Riwayat Pembelian</h3>
             <span class="text-sm text-gray-600">
-              Total: {{ filteredStocks.length }} data
+              Total: {{ filteredStocks.length }} pembelian
             </span>
           </div>
         </div>
@@ -252,19 +263,22 @@ onMounted(async () => {
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tanggal
+                  No
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Produk
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tipe
+                  Tipe Produk
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Harga Beli
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Quantity
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga Beli
+                  Tanggal
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Catatan
@@ -278,32 +292,29 @@ onMounted(async () => {
                 </td>
               </tr>
               <tr v-else-if="filteredStocks.length === 0">
-                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                  Tidak ada data transaksi stock
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                  Tidak ada data pembelian produk
                 </td>
               </tr>
               <tr v-else v-for="stock in filteredStocks" :key="stock.id" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ formatDate(stock.date) }}
+                  {{ filteredStocks.indexOf(stock) + 1 }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900">{{ stock.product_name }}</div>
+                  <!-- <div class="text-sm text-gray-500">ID: {{ stock.product_id }}</div> -->
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span :class="[
-                    'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                    stock.type === 'in' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  ]">
-                    {{ stock.type === 'in' ? 'Masuk' : 'Keluar' }}
-                  </span>
+                  <div class="text-sm font-medium text-gray-900">{{ formatProductType(stock.product_type) }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ stock.buy_price ? formatCurrency(stock.buy_price) : '-' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ stock.quantity }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ stock.buy_price ? formatCurrency(stock.buy_price) : '-' }}
+                  {{ formatDate(stock.date) }}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-900">
                   <div class="max-w-xs truncate" :title="stock.notes">
@@ -320,7 +331,7 @@ onMounted(async () => {
       <div v-if="showStockModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg w-full max-w-lg p-6">
           <h3 class="text-xl font-semibold mb-4">
-            Tambah Transaksi Stock
+            Tambah Pembelian Produk
           </h3>
 
           <form @submit.prevent="saveStock" class="space-y-4">
@@ -339,19 +350,7 @@ onMounted(async () => {
               </select>
             </div>
 
-            <!-- Transaction Type -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi *</label>
-              <select
-                v-model="stockForm.type"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-              >
-                <option value="">Pilih Tipe</option>
-                <option value="in">Masuk</option>
-                <option value="out">Keluar</option>
-              </select>
-            </div>
+
 
             <!-- Quantity -->
             <div>
@@ -365,13 +364,14 @@ onMounted(async () => {
               />
             </div>
 
-            <!-- Buy Price (only for 'in' type) -->
-            <div v-if="stockForm.type === 'in'">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli</label>
+            <!-- Buy Price -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli *</label>
               <input
                 v-model.number="stockForm.buy_price"
                 type="number"
                 min="0"
+                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
               />
             </div>

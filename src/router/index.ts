@@ -16,48 +16,13 @@ const router = createRouter({
         requiresAuth: true
       },
     },
-    // {
-    //   path: '/products',
-    //   name: 'Products',
-    //   component: () => import('../views/Products/ProductList.vue'),
-    //   meta: {
-    //     title: 'Products',
-    //     requiresAuth: true
-    //   },
-    // },
-    // {
-    //   path: '/products/create',
-    //   name: 'ProductCreate',
-    //   component: () => import('../views/Products/ProductCreate.vue'),
-    //   meta: {
-    //     title: 'Create Product',
-    //     requiresAuth: true
-    //   },
-    // },
-    // {
-    //   path: '/products/:id',
-    //   name: 'ProductDetail',
-    //   component: () => import('../views/Products/ProductDetail.vue'),
-    //   meta: {
-    //     title: 'Product Detail',
-    //     requiresAuth: true
-    //   },
-    // },
-    // {
-    //   path: '/products/:id/edit',
-    //   name: 'ProductEdit',
-    //   component: () => import('../views/Products/ProductEdit.vue'),
-    //   meta: {
-    //     title: 'Edit Product',
-    //     requiresAuth: true
-    //   },
-    // },
     {
-      path: '/riwayat',
-      name: 'Riwayat',
+      path: '/laporan',
+      name: 'Laporan',
       component: () => import('../views/Riwayat/index.vue'),
       meta: {
-        title: 'Riwayat Transaksi',
+        title: 'Laporan',
+        requiresAuth: true
       },
     },
     {
@@ -66,6 +31,7 @@ const router = createRouter({
       component: () => import('../views/Order/index.vue'),
       meta: {
         title: 'Order',
+        requiresAuth: true
       },
     },
     {
@@ -74,6 +40,16 @@ const router = createRouter({
       component: () => import('../views/Produk/index.vue'),
       meta: {
         title: 'Produk',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/pembelian',
+      name: 'Pembelian',
+      component: () => import('../views/Pembelian/index.vue'),
+      meta: {
+        title: 'Pembelian',
+        requiresAuth: true
       },
     },
     {
@@ -82,6 +58,7 @@ const router = createRouter({
       component: () => import('../views/Stok/index.vue'),
       meta: {
         title: 'Stok',
+        requiresAuth: true
       },
     },
     {
