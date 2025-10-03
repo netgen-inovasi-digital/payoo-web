@@ -319,14 +319,14 @@ import type { Shop, ShopUpdatePayload } from '@/api/types/shop.types'
 import type { Province, City } from '@/api/types/location.types'
 import { useImageUpload } from '@/composables/useImageUpload'
 import { useAlert } from '@/composables/useAlert'
-import { useFormatters } from '@/composables/useFormatters'
 import { useAuthStore } from '@/stores/auth.store'
+// import { useFormatters } from '@/composables/useFormatters'
 
 // Composables
 const alert = useAlert()
 const imageUpload = useImageUpload()
-const { formatShopType } = useFormatters()
 const authStore = useAuthStore()
+// const { formatShopType } = useFormatters()
 
 // State
 const loading = ref(false)
