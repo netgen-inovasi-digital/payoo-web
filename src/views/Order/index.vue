@@ -42,7 +42,7 @@
                 <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-40 object-cover rounded-lg mb-3">
                 <h3 class="font-medium mb-2">{{ product.name }}</h3>
                 <div class="flex justify-between items-center">
-                  <span class="text-emerald-500 font-medium">Rp. {{ product.selling_price.toLocaleString() }}</span>
+                  <span class="text-emerald-500 font-medium">{{ formatCurrency(product.selling_price) }}</span>
                   <span class="text-gray-500 text-sm">/ Pcs</span>
                 </div>
               </div>
@@ -78,7 +78,7 @@
                 <div class="flex-1">
                   <h4 class="font-medium">{{ item.product.name }}</h4>
                   <div class="flex justify-between items-center">
-                    <span>Rp. {{ item.product.selling_price.toLocaleString() }}</span>
+                    <span>{{ formatCurrency(item.product.selling_price) }}</span>
                     <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm">
                       Hapus
                     </button>
@@ -128,15 +128,15 @@
             <div v-if="cartItems.length > 0" class="space-y-2 mb-6">
               <div class="flex justify-between">
                 <span>Subtotal</span>
-                <span>Rp. {{ subtotal.toLocaleString() }}</span>
+                <span>{{ formatCurrency(subtotal) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Tax</span>
-                <span>Rp. {{ tax.toLocaleString() }}</span>
+                <span>{{ formatCurrency(tax) }}</span>
               </div>
               <div class="flex justify-between font-medium text-lg pt-2 border-t">
                 <span>Total</span>
-                <span class="text-emerald-500">Rp. {{ total.toLocaleString() }}</span>
+                <span class="text-emerald-500">{{ formatCurrency(total) }}</span>
               </div>
             </div>
 
@@ -179,12 +179,14 @@ import type { Product } from '@/api/types/product.types'
 import type { Category } from '@/api/types/category.types'
 import type { Order } from '@/api/types/order.types'
 import { useAlert } from '@/composables/useAlert'
+import { useFormatters } from '@/composables/useFormatters'
 
 defineOptions({
   name: 'OrderPOS'
 })
 
 const alert = useAlert()
+const { formatCurrency } = useFormatters()
 
 interface OrderItem {
   product: Product;
@@ -318,7 +320,7 @@ const checkout = async () => {
   // Konfirmasi pesanan dengan Sweet Alert
   const confirmed = await alert.confirm({
     title: 'Konfirmasi Pesanan',
-    text: `Total pesanan: Rp. ${total.value.toLocaleString()}\nMetode pembayaran: ${paymentMethods.find(m => m.id === orderForm.value.payment_method)?.name || orderForm.value.payment_method}\nApakah Anda yakin ingin melanjutkan?`,
+    text: `Total pesanan: ${formatCurrency(total.value)}\nMetode pembayaran: ${paymentMethods.find(m => m.id === orderForm.value.payment_method)?.name || orderForm.value.payment_method}\nApakah Anda yakin ingin melanjutkan?`,
     icon: 'question',
     confirmButtonText: 'Ya, Proses!',
     cancelButtonText: 'Batal'

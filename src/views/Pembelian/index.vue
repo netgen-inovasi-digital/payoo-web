@@ -4,6 +4,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { stockService } from '@/api/services/stock.service'
 import { productService } from '@/api/services/product.service'
 import { useAlert } from '@/composables/useAlert'
+import { useFormatters } from '@/composables/useFormatters'
 import type { Stock, StockTransaction } from '@/api/types/stock.types'
 import type { Product } from '@/api/types/product.types'
 
@@ -13,6 +14,7 @@ defineOptions({
 
 // Composables
 const alert = useAlert()
+const { formatDate, formatCurrency, formatProductType } = useFormatters()
 
 // State
 const stocks = ref<Stock[]>([])
@@ -122,33 +124,7 @@ const saveStock = async () => {
   }
 }
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString('id-ID', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR'
-  }).format(amount)
-}
-
-const formatProductType = (type: string) => {
-  switch (type) {
-    case 'composition':
-      return 'Komposisi'
-    case 'product':
-      return 'Produk'
-    default:
-      return type
-  }
-}
 
 // Watchers
 watch([searchQuery, selectedProductId, selectedProductType, dateFrom, dateTo], () => {

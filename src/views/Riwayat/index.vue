@@ -3,12 +3,16 @@ import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { reportService } from '@/api/services/report.service'
 import { orderService } from '@/api/services/order.service'
+import { useFormatters } from '@/composables/useFormatters'
 import type { ReportData, ReportPeriod } from '@/api/types/report.types'
 import type { Order } from '@/api/types/order.types'
 
 defineOptions({
   name: 'RiwayatIndex'
 })
+
+// Composables
+const { formatDate, formatPaymentMethod, formatCurrency } = useFormatters()
 
 interface TransactionItem {
   name: string;
@@ -60,25 +64,7 @@ const transactions = computed<Transaction[]>(() => {
   }))
 })
 
-// Helper functions
-const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: '2-digit', 
-    day: '2-digit'
-  })
-}
 
-const formatPaymentMethod = (method: string) => {
-  const methods: Record<string, string> = {
-    cash: 'Tunai',
-    gopay: 'GoPay',
-    ovo: 'OVO',
-    dana: 'DANA',
-    qris: 'QRIS'
-  }
-  return methods[method] || method
-}
 
 // Computed
 const filteredTransactions = computed(() => {
@@ -231,14 +217,14 @@ onMounted(async () => {
                 </span>
               </td>
               <td class="px-6 py-4 text-sm text-gray-500">{{ transaction.items }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">Rp{{ transaction.revenue.toLocaleString() }}</td>
+              <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(transaction.revenue) }}</td>
               <td class="px-6 py-4 text-sm">
                 <button @click="viewDetail(transaction.id)" class="text-blue-600 hover:text-blue-800">Detail</button>
               </td>
             </tr>
             <tr class="bg-gray-50 font-medium">
               <td colspan="4" class="px-6 py-4 text-sm text-gray-900">Total Pendapatan</td>
-              <td colspan="3" class="px-6 py-4 text-sm text-gray-900">Rp{{ totalRevenue.toLocaleString() }}</td>
+              <td colspan="3" class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(totalRevenue) }}</td>
             </tr>
           </tbody>
         </table>
@@ -278,7 +264,7 @@ onMounted(async () => {
               <table class="w-full border border-gray-200 rounded-lg">
                 <thead class="bg-gray-50">
                   <tr>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Product ID</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Produk</th>
                     <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Qty</th>
                     <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">Harga</th>
                     <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">Subtotal</th>
@@ -288,8 +274,8 @@ onMounted(async () => {
                   <tr v-for="item in selectedOrder.order_items" :key="item.id" class="hover:bg-gray-50">
                     <td class="px-4 py-2 text-sm">{{ item.name }}</td>
                     <td class="px-4 py-2 text-sm text-center">{{ item.quantity }}</td>
-                    <td class="px-4 py-2 text-sm text-right">Rp{{ item.price.toLocaleString() }}</td>
-                    <td class="px-4 py-2 text-sm text-right">Rp{{ (item.price * item.quantity).toLocaleString() }}</td>
+                    <td class="px-4 py-2 text-sm text-right">{{ formatCurrency(item.price) }}</td>
+                    <td class="px-4 py-2 text-sm text-right">{{ formatCurrency(item.price * item.quantity) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -300,30 +286,30 @@ onMounted(async () => {
           <div v-if="selectedOrder" class="border-t pt-4 space-y-2">
             <div class="flex justify-between text-sm">
               <span>Subtotal:</span>
-              <span>Rp{{ selectedOrder.total.toLocaleString() }}</span>
+              <span>{{ formatCurrency(selectedOrder.total) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span>Pajak:</span>
-              <span>Rp{{ (selectedOrder.tax || 0).toLocaleString() }}</span>
+              <span>{{ formatCurrency(selectedOrder.tax || 0) }}</span>
             </div>
             <div class="flex justify-between text-lg font-bold border-t pt-2">
               <span>Total:</span>
-              <span>Rp{{ selectedOrder.total.toLocaleString() }}</span>
+              <span>{{ formatCurrency(selectedOrder.total) }}</span>
             </div>
             <div class="flex justify-between text-sm text-gray-600">
               <span>Dibayar:</span>
-              <span>Rp{{ selectedOrder.amount_paid.toLocaleString() }}</span>
+              <span>{{ formatCurrency(selectedOrder.amount_paid) }}</span>
             </div>
             <div v-if="(selectedOrder.change_money || 0) > 0" class="flex justify-between text-sm text-gray-600">
               <span>Kembalian:</span>
-              <span>Rp{{ (selectedOrder.change_money || 0).toLocaleString() }}</span>
+              <span>{{ formatCurrency(selectedOrder.change_money || 0) }}</span>
             </div>
           </div>
           
           <!-- Fallback total if no detailed order -->
           <div v-else class="border-t pt-4">
             <p class="text-lg font-medium text-right">
-              <strong>Total: Rp{{ selectedTransaction.revenue.toLocaleString() }}</strong>
+              <strong>Total: {{ formatCurrency(selectedTransaction.revenue) }}</strong>
             </p>
           </div>
         </div>

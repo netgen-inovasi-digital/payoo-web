@@ -92,8 +92,8 @@
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-900">{{ product.name }}</td>
                   <td class="px-6 py-4 text-sm text-gray-500">{{ getCategoryName(product.category_id) }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">Rp{{ product.cost_price.toLocaleString() }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">Rp{{ product.selling_price.toLocaleString() }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(product.cost_price) }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(product.selling_price) }}</td>
                   <td class="px-6 py-4 text-sm">
                     <div class="flex gap-2">
                       <button @click="deleteProduct(product)" class="text-red-500">
@@ -254,10 +254,12 @@ import type { Product } from '@/api/types/product.types'
 import type { Category } from '@/api/types/category.types'
 import { useImageUpload } from '@/composables/useImageUpload'
 import { useAlert } from '@/composables/useAlert'
+import { useFormatters } from '@/composables/useFormatters'
 
 // Composables
 const alert = useAlert()
 const imageUpload = useImageUpload()
+const { formatCurrency } = useFormatters()
 
 // State
 const products = ref<Product[]>([])
