@@ -2,13 +2,24 @@
   <div
     class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 pb-7 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6"
   >
-    <div class="flex items-start gap-6">
+    <!-- Loading State -->
+    <div v-if="loading && !shop.name" class="flex items-center justify-center py-12">
+      <div class="flex items-center gap-3">
+        <svg class="h-6 w-6 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-gray-600 dark:text-gray-400">Memuat data toko...</span>
+      </div>
+    </div>
+
+    <div v-else class="flex items-start gap-6">
       <!-- Store Image -->
       <div
         class="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-100 shadow-sm"
       >
         <img
-          :src="store.image"
+          :src="shop.photo"
           alt="Foto Toko"
           class="h-full w-full object-cover object-center"
         />
@@ -19,19 +30,20 @@
         <div class="flex items-start justify-between">
           <div class="space-y-2">
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">
-              {{ store.name }}
+              {{ shop.name }}
             </h2>
             <span
               class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600"
             >
-              {{ store.accountType }}
+              <!-- {{ formatShopType(shop.type) }} -->
+                Akun Gratis
             </span>
           </div>
           <button
             @click="openModal"
             class="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
           >
-            <span>Edit Profil</span>
+            <span>Edit Toko</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -79,7 +91,7 @@
             <div>
               <p class="text-sm text-gray-500">Alamat</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ store.address }}
+                {{ `${shop.address}, ${shop.city}, ${shop.province}` }}
               </p>
             </div>
           </div>
@@ -105,9 +117,9 @@
               </svg>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Pemilik</p>
+              <p class="text-sm text-gray-500">Email</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ store.owner }}
+                {{ shop.email }}
               </p>
             </div>
           </div>
@@ -135,7 +147,7 @@
             <div>
               <p class="text-sm text-gray-500">Telepon</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ store.phone }}
+                {{ shop.phone }}
               </p>
             </div>
           </div>
@@ -151,7 +163,7 @@
       <div
         class="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900"
       >
-        <h3 class="mb-4 text-lg font-semibold">Edit Profil</h3>
+        <h3 class="mb-4 text-lg font-semibold">Edit Toko</h3>
 
         <form @submit.prevent="saveChanges" class="space-y-4">
           <!-- Upload Foto -->
@@ -160,12 +172,19 @@
             <input
               type="file"
               accept="image/*"
-              @change="onFileChange"
+              @change="handleImageUpload"
               class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+              :disabled="loading || imageUpload.isUploading.value"
             />
-            <div v-if="form.image" class="mt-3">
+            <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
+              Mengupload...
+            </div>
+            <div v-if="imageUpload.selectedFile.value" class="text-sm text-green-600 mt-1">
+              Selected: {{ imageUpload.selectedFile.value.name }}
+            </div>
+            <div v-if="form.photo" class="mt-3">
               <img
-                :src="form.image"
+                :src="form.photo || imageUpload.previewUrl.value"
                 alt="Preview Foto"
                 class="h-24 rounded-lg object-cover"
               />
@@ -182,14 +201,29 @@
             />
           </div>
 
-          <!-- Tipe Akun -->
+          <!-- Email -->
           <div>
-            <label class="block text-sm font-medium">Tipe Akun</label>
+            <label class="block text-sm font-medium">Email</label>
             <input
-              v-model="form.accountType"
-              type="text"
+              v-model="form.email"
+              type="email"
+              required
               class="mt-1 w-full rounded-lg border border-gray-300 p-2"
             />
+          </div>
+
+          <!-- Tipe Toko -->
+          <div>
+            <label class="block text-sm font-medium">Tipe Toko</label>
+            <select
+              v-model="form.type"
+              required
+              class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+            >
+              <option v-for="option in shopTypeOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
           </div>
 
           <!-- Alamat -->
@@ -202,14 +236,45 @@
             />
           </div>
 
-          <!-- Pemilik -->
+          <!-- Province -->
           <div>
-            <label class="block text-sm font-medium">Pemilik</label>
-            <input
-              v-model="form.owner"
-              type="text"
-              class="mt-1 w-full rounded-lg border border-gray-300 p-2"
-            />
+            <label class="block text-sm font-medium">Provinsi</label>
+            <select
+              v-model="formProvinceId"
+              required
+              :disabled="loadingProvinces"
+              class="mt-1 w-full rounded-lg border border-gray-300 p-2 disabled:opacity-50"
+            >
+              <option value="">Pilih Provinsi...</option>
+              <option v-for="province in provinces" :key="province.id" :value="province.id">
+                {{ province.text }}
+              </option>
+            </select>
+            <div v-if="loadingProvinces" class="text-sm text-blue-600 mt-1">
+              Memuat provinsi...
+            </div>
+          </div>
+
+          <!-- City -->
+          <div>
+            <label class="block text-sm font-medium">Kota</label>
+            <select
+              v-model="formCityId"
+              required
+              :disabled="loadingCities || !formProvinceId"
+              class="mt-1 w-full rounded-lg border border-gray-300 p-2 disabled:opacity-50"
+            >
+              <option value="">Pilih Kota...</option>
+              <option v-for="city in cities" :key="city.id" :value="city.id">
+                {{ city.text }}
+              </option>
+            </select>
+            <div v-if="loadingCities" class="text-sm text-blue-600 mt-1">
+              Memuat kota...
+            </div>
+            <div v-if="!formProvinceId" class="text-sm text-gray-500 mt-1">
+              Pilih provinsi terlebih dahulu
+            </div>
           </div>
 
           <!-- Telepon -->
@@ -233,9 +298,11 @@
             </button>
             <button
               type="submit"
-              class="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white"
+              :disabled="loading || imageUpload.isUploading.value"
+              class="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Simpan
+              <span v-if="loading">Menyimpan...</span>
+              <span v-else>Simpan</span>
             </button>
           </div>
         </form>
@@ -245,48 +312,268 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, onMounted, watch } from "vue"
+import { shopService } from '@/api/services/shop.service'
+import { locationService } from '@/api/services/location.service'
+import type { Shop, ShopUpdatePayload } from '@/api/types/shop.types'
+import type { Province, City } from '@/api/types/location.types'
+import { useImageUpload } from '@/composables/useImageUpload'
+import { useAlert } from '@/composables/useAlert'
+import { useFormatters } from '@/composables/useFormatters'
+import { useAuthStore } from '@/stores/auth.store'
 
-// data toko utama
-const store = reactive({
-  name: "Query Burger",
-  accountType: "Akun Gratis",
-  address: "Komplek Griya Ulin Permai, Jl. Asabri 2",
-  owner: "Ridha Lesmana",
-  phone: "083132047123",
-  image: "/images/brand/brand-01.svg", // default foto toko
-});
+// Composables
+const alert = useAlert()
+const imageUpload = useImageUpload()
+const { formatShopType } = useFormatters()
+const authStore = useAuthStore()
 
-// modal state
-const isModalOpen = ref(false);
+// State
+const loading = ref(false)
+const isModalOpen = ref(false)
+const loadingProvinces = ref(false)
+const loadingCities = ref(false)
 
-// form edit (copy dari store)
-const form = reactive({ ...store });
+// Location data
+const provinces = ref<Province[]>([])
+const cities = ref<City[]>([])
+const selectedProvinceId = ref<string>('')
 
-function openModal() {
-  Object.assign(form, store); // reset form ke data asli
-  isModalOpen.value = true;
+// Shop data - will be populated from API
+const shop = ref<Shop>({
+  id: 0,
+  user_id: 0,
+  name: "",
+  email: "",
+  address: "",
+  type: "mandiri",
+  province: "",
+  city: "",
+  phone: "",
+  photo: "",
+  created_at: "",
+  updated_at: ""
+})
+
+// Form edit
+const form = ref<ShopUpdatePayload>({
+  name: "",
+  email: "",
+  address: "",
+  type: "mandiri",
+  province: "",
+  city: "",
+  phone: "",
+  photo: ""
+})
+
+// Form province & city IDs for API calls
+const formProvinceId = ref<string>('')
+const formCityId = ref<string>('')
+
+// Shop type options
+const shopTypeOptions = [
+  { value: 'mandiri', label: 'Mandiri' },
+  { value: 'perusahaan', label: 'Perusahaan' }
+]
+
+// API Functions
+const fetchShop = async () => {
+  const shopId = authStore.user?.shop_id
+  
+  if (!shopId) {
+    alert.error('Error!', 'Shop ID tidak ditemukan. Silakan login ulang.')
+    return
+  }
+  
+  try {
+    loading.value = true
+    const response = await shopService.getShop(shopId)
+    if (response.status === 'success') {
+      shop.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch shop:', error)
+    alert.error('Gagal!', 'Terjadi kesalahan saat mengambil data toko.')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Fetch provinces from location API
+const fetchProvinces = async () => {
+  try {
+    loadingProvinces.value = true
+    const response = await locationService.getProvinces()
+    if (response.status === 200) {
+      provinces.value = response.result
+    }
+  } catch (error) {
+    console.error('Failed to fetch provinces:', error)
+    alert.error('Gagal!', 'Terjadi kesalahan saat mengambil data provinsi.')
+  } finally {
+    loadingProvinces.value = false
+  }
+}
+
+// Fetch cities by province ID
+const fetchCities = async (provinceId: string) => {
+  if (!provinceId) {
+    cities.value = []
+    return
+  }
+  
+  try {
+    loadingCities.value = true
+    const response = await locationService.getCities(provinceId)
+    if (response.status === 200) {
+      cities.value = response.result
+    }
+  } catch (error) {
+    console.error('Failed to fetch cities:', error)
+    alert.error('Gagal!', 'Terjadi kesalahan saat mengambil data kota.')
+  } finally {
+    loadingCities.value = false
+  }
+}
+
+// Watch province changes to fetch cities
+watch(formProvinceId, (newProvinceId) => {
+  if (newProvinceId) {
+    fetchCities(newProvinceId)
+    // Reset city selection when province changes
+    formCityId.value = ''
+    form.value.city = ''
+  } else {
+    cities.value = []
+    formCityId.value = ''
+    form.value.city = ''
+  }
+})
+
+// Watch province name selection to update province text
+watch(formProvinceId, (newProvinceId) => {
+  const selectedProvince = provinces.value.find(p => p.id === newProvinceId)
+  if (selectedProvince) {
+    form.value.province = selectedProvince.text
+  }
+})
+
+// Watch city name selection to update city text  
+watch(formCityId, (newCityId) => {
+  const selectedCity = cities.value.find(c => c.id === newCityId)
+  if (selectedCity) {
+    form.value.city = selectedCity.text
+  }
+})
+
+// Methods
+async function openModal() {
+  // Reset form dengan data shop terbaru
+  form.value = {
+    name: shop.value.name,
+    email: shop.value.email,
+    address: shop.value.address,
+    type: shop.value.type,
+    province: shop.value.province,
+    city: shop.value.city,
+    phone: shop.value.phone,
+    photo: shop.value.photo
+  }
+  
+  // Load provinces when modal opens
+  await fetchProvinces()
+  
+  // Find and set selected province ID
+  const currentProvince = provinces.value.find(p => p.text === shop.value.province)
+  if (currentProvince) {
+    formProvinceId.value = currentProvince.id
+    selectedProvinceId.value = currentProvince.id
+    // Load cities for current province
+    await fetchCities(currentProvince.id)
+    
+    // Find and set selected city ID
+    const currentCity = cities.value.find(c => c.text === shop.value.city)
+    if (currentCity) {
+      formCityId.value = currentCity.id
+    }
+  }
+  
+  imageUpload.resetUpload()
+  isModalOpen.value = true
 }
 
 function closeModal() {
-  isModalOpen.value = false;
+  isModalOpen.value = false
+  imageUpload.resetUpload()
 }
 
-function saveChanges() {
-  Object.assign(store, form); // simpan perubahan ke store
-  closeModal();
-}
-
-// handle upload foto toko
-function onFileChange(e: Event) {
-  const target = e.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      form.image = ev.target?.result as string; // simpan base64 preview
-    };
-    reader.readAsDataURL(file);
+const handleImageUpload = async (event: Event) => {
+  const success = await imageUpload.handleImageSelect(event)
+  if (success) {
+    form.value.photo = imageUpload.previewUrl.value
+  } else if (imageUpload.error.value) {
+    alert.error('Upload Error', imageUpload.error.value)
   }
 }
+
+async function saveChanges() {
+  // Konfirmasi sebelum simpan
+  const confirmed = await alert.confirmSave('profil toko', true)
+  if (!confirmed) return
+
+  try {
+    loading.value = true
+
+    // Step 1: Upload image if a new file is selected
+    if (imageUpload.selectedFile.value) {
+      try {
+        const uploadResponse = await imageUpload.uploadFile('shop')
+        if (uploadResponse?.status === 'success') {
+          form.value.photo = uploadResponse.data.url
+        }
+      } catch (uploadError) {
+        console.error('Failed to upload image:', uploadError)
+        alert.error('Gagal Upload!', 'Terjadi kesalahan saat mengupload gambar.')
+        return
+      }
+    }
+
+    // Step 2: Update shop data
+    const shopId = authStore.user?.shop_id
+    if (!shopId) {
+      alert.error('Error!', 'Shop ID tidak ditemukan. Silakan login ulang.')
+      return
+    }
+    
+    const response = await shopService.updateShop(shopId, form.value)
+    
+    if (response.status === 'success') {
+      shop.value = response.data
+      closeModal()
+      alert.success('Berhasil!', 'Profil toko berhasil diupdate.')
+    }
+  } catch (error) {
+    console.error('Failed to save shop:', error)
+    alert.error('Gagal!', 'Terjadi kesalahan saat menyimpan profil toko.')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Lifecycle
+onMounted(async () => {
+  // Check if user is authenticated and has a shop ID
+  if (!authStore.isAuthenticated) {
+    alert.error('Error!', 'Anda harus login terlebih dahulu.')
+    return
+  }
+  
+  if (!authStore.user?.shop_id) {
+    alert.error('Error!', 'Akun Anda belum terhubung dengan toko. Silakan hubungi administrator.')
+    return
+  }
+  
+  await fetchShop()
+})
 </script>

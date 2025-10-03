@@ -133,6 +133,22 @@ export const useFormatters = () => {
     return units[unit] || unit
   }
 
+  /**
+   * Format shop type to Indonesian
+   * @param type - Shop type ('mandiri' | 'perusahaan')
+   * @returns Formatted shop type string
+   */
+  const formatShopType = (type: string) => {
+    switch (type) {
+      case 'mandiri':
+        return 'Mandiri'
+      case 'perusahaan':
+        return 'Perusahaan'
+      default:
+        return type
+    }
+  }
+
   return {
     formatDate,
     formatCurrency,
@@ -141,6 +157,7 @@ export const useFormatters = () => {
     formatStatus,
     formatTransactionType,
     formatNumber,
-    formatUnit
+    formatUnit,
+    formatShopType
   }
 }

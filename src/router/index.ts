@@ -12,7 +12,7 @@ const router = createRouter({
       name: 'Ecommerce',
       component: () => import('../views/Ecommerce.vue'),
       meta: {
-        title: 'eCommerce Dashboard',
+        title: 'Dashboard',
         requiresAuth: true
       },
     },
@@ -205,6 +205,6 @@ router.beforeEach(async (to, from, next) => {
     await authStore.getCurrentUser()
   }
   
-  document.title = `PAYOO ${to.meta.title} | Admin Dashboard`
+  document.title = `PAYOO ${to.meta.title} | Owner Dashboard`
   next()
 })

@@ -112,18 +112,18 @@
                   <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(product.selling_price) }}</td>
                   <td class="px-6 py-4 text-sm">
                     <div class="flex gap-2">
-                      <button @click="deleteProduct(product)" class="text-red-500">
-                        <span class="sr-only">Delete</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
                       <button @click="editProduct(product)" class="text-blue-500">
                         <span class="sr-only">Edit</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button @click="deleteProduct(product)" class="text-red-500">
+                        <span class="sr-only">Delete</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
                     </div>
@@ -146,18 +146,26 @@
               <!-- Product Image -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
-                <div class="flex items-center gap-4">
-                  <img :src="productForm.photo || '/images/product/default.jpg'" alt="Product preview" v-if="productForm.photo"
-                    class="w-24 h-24 object-cover rounded" />
-                  <div class="flex-1">
-                    <input type="file" accept="image/*" @change="handleImageUpload" class="w-full" :required="!productForm.photo" />
-                                        <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
-                      Mengupload...
-                    </div>
-                    <div v-if="imageUpload.selectedFile.value" class="text-sm text-green-600 mt-1">
-                      Selected: {{ imageUpload.selectedFile.value.name }}
-                    </div>
-                  </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  @change="handleImageUpload"
+                  class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+                  :disabled="loading || imageUpload.isUploading.value"
+                  :required="!productForm.photo"
+                />
+                <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
+                  Mengupload...
+                </div>
+                <div v-if="imageUpload.selectedFile.value" class="text-sm text-green-600 mt-1">
+                  Selected: {{ imageUpload.selectedFile.value.name }}
+                </div>
+                <div v-if="productForm.photo" class="mt-3">
+                  <img
+                    :src="productForm.photo || imageUpload.previewUrl.value"
+                    alt="Preview Foto"
+                    class="h-24 rounded-lg object-cover"
+                  />
                 </div>
               </div>
 

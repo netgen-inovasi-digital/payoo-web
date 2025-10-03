@@ -87,7 +87,7 @@
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-900">Riwayat Pembelian</h3>
             <span class="text-sm text-gray-600">
-              Total: {{ filteredStocks.length }} pembelian
+              Total: {{ filteredStocks.length }} data
             </span>
           </div>
         </div>

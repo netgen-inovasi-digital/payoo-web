@@ -11,7 +11,7 @@
         </div>
 
         <div class="text-gray-600 whitespace-nowrap">
-          Total transaksi : {{ filteredTransactions.length }}
+          Total Transaksi: {{ filteredTransactions.length }}
         </div>
 
         <div class="flex gap-2 ml-auto">
