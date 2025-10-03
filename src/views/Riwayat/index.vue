@@ -1,140 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { reportService } from '@/api/services/report.service'
-import { orderService } from '@/api/services/order.service'
-import { useFormatters } from '@/composables/useFormatters'
-import type { ReportData, ReportPeriod } from '@/api/types/report.types'
-import type { Order } from '@/api/types/order.types'
-
-defineOptions({
-  name: 'RiwayatIndex'
-})
-
-// Composables
-const { formatDate, formatPaymentMethod, formatCurrency } = useFormatters()
-
-interface TransactionItem {
-  name: string;
-  qty: number;
-  price: number;
-}
-
-interface Transaction {
-  id: string;
-  date: string;
-  cashier: string;
-  customer: string;
-  revenue: number;
-  items: number;
-  payment_method: string;
-  status: string;
-  notes: string;
-  details?: TransactionItem[];
-}
-
-// State
-const searchQuery = ref('')
-const showDetailModal = ref(false)
-const selectedTransaction = ref<Transaction | null>(null)
-const selectedOrder = ref<Order | null>(null)
-const loading = ref(false)
-const loadingDetail = ref(false)
-const reportData = ref<ReportData | null>(null)
-
-// Filter form
-const filterForm = ref({
-  period: 'today' as ReportPeriod
-})
-
-// Transactions data - computed from API response
-const transactions = computed<Transaction[]>(() => {
-  if (!reportData.value?.orders) return []
-  
-  return reportData.value.orders.map(order => ({
-    id: order.id,
-    date: formatDate(order.created_at),
-    cashier: 'Admin', // Hardcode for now since API doesn't provide cashier info
-    customer: `Customer #${order.id}`, // Hardcode for now since API doesn't provide customer info
-    revenue: parseFloat(order.total),
-    items: parseInt(order.total_items),
-    payment_method: order.payment_method,
-    status: order.status,
-    notes: order.notes
-  }))
-})
-
-
-
-// Computed
-const filteredTransactions = computed(() => {
-  const query = searchQuery.value.toLowerCase()
-  return transactions.value.filter(transaction =>
-    transaction.id.toLowerCase().includes(query) ||
-    transaction.customer.toLowerCase().includes(query) ||
-    transaction.cashier.toLowerCase().includes(query) ||
-    transaction.payment_method.toLowerCase().includes(query)
-  )
-})
-
-const totalRevenue = computed(() => {
-  return filteredTransactions.value.reduce((sum, trx) => sum + trx.revenue, 0)
-})
-
-// Methods
-const fetchReports = async () => {
-  try {
-    loading.value = true
-    const shopId = '1' // Hardcode for now, should get from auth/store
-    const response = await reportService.getReports(shopId, filterForm.value.period)
-    
-    if (response.status === 'success') {
-      reportData.value = response.data
-    }
-  } catch (error) {
-    console.error('Failed to fetch reports:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const viewDetail = async (transactionId: string) => {
-  try {
-    loadingDetail.value = true
-    const trx = transactions.value.find(t => t.id === transactionId)
-    
-    if (trx) {
-      selectedTransaction.value = trx
-      
-      // Fetch detailed order data from API
-      const response = await orderService.getOrder(parseInt(transactionId))
-      
-      if (response.status === 'success') {
-        selectedOrder.value = response.data
-      }
-      
-      showDetailModal.value = true
-    }
-  } catch (error) {
-    console.error('Failed to fetch order detail:', error)
-    // Still show modal with basic transaction info even if API fails
-    const trx = transactions.value.find(t => t.id === transactionId)
-    if (trx) {
-      selectedTransaction.value = trx
-      selectedOrder.value = null
-      showDetailModal.value = true
-    }
-  } finally {
-    loadingDetail.value = false
-  }
-}
-
-// Lifecycle
-onMounted(async () => {
-  await fetchReports()
-})
-</script>
-
 <template>
   <AdminLayout>
     <div class="container mx-auto p-6">
@@ -321,3 +184,140 @@ onMounted(async () => {
     </div>
   </AdminLayout>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { reportService } from '@/api/services/report.service'
+import { orderService } from '@/api/services/order.service'
+import { useFormatters } from '@/composables/useFormatters'
+import type { ReportData, ReportPeriod } from '@/api/types/report.types'
+import type { Order } from '@/api/types/order.types'
+
+defineOptions({
+  name: 'RiwayatIndex'
+})
+
+// Composables
+const { formatDate, formatPaymentMethod, formatCurrency } = useFormatters()
+
+interface TransactionItem {
+  name: string;
+  qty: number;
+  price: number;
+}
+
+interface Transaction {
+  id: string;
+  date: string;
+  cashier: string;
+  customer: string;
+  revenue: number;
+  items: number;
+  payment_method: string;
+  status: string;
+  notes: string;
+  details?: TransactionItem[];
+}
+
+// State
+const searchQuery = ref('')
+const showDetailModal = ref(false)
+const selectedTransaction = ref<Transaction | null>(null)
+const selectedOrder = ref<Order | null>(null)
+const loading = ref(false)
+const loadingDetail = ref(false)
+const reportData = ref<ReportData | null>(null)
+
+// Filter form
+const filterForm = ref({
+  period: 'today' as ReportPeriod
+})
+
+// Transactions data - computed from API response
+const transactions = computed<Transaction[]>(() => {
+  if (!reportData.value?.orders) return []
+  
+  return reportData.value.orders.map(order => ({
+    id: order.id,
+    date: formatDate(order.created_at),
+    cashier: 'Admin', // Hardcode for now since API doesn't provide cashier info
+    customer: `Customer #${order.id}`, // Hardcode for now since API doesn't provide customer info
+    revenue: parseFloat(order.total),
+    items: parseInt(order.total_items),
+    payment_method: order.payment_method,
+    status: order.status,
+    notes: order.notes
+  }))
+})
+
+
+
+// Computed
+const filteredTransactions = computed(() => {
+  const query = searchQuery.value.toLowerCase()
+  return transactions.value.filter(transaction =>
+    transaction.id.toLowerCase().includes(query) ||
+    transaction.customer.toLowerCase().includes(query) ||
+    transaction.cashier.toLowerCase().includes(query) ||
+    transaction.payment_method.toLowerCase().includes(query)
+  )
+})
+
+const totalRevenue = computed(() => {
+  return filteredTransactions.value.reduce((sum, trx) => sum + trx.revenue, 0)
+})
+
+// Methods
+const fetchReports = async () => {
+  try {
+    loading.value = true
+    const shopId = '1' // Hardcode for now, should get from auth/store
+    const response = await reportService.getReports(shopId, filterForm.value.period)
+    
+    if (response.status === 'success') {
+      reportData.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch reports:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const viewDetail = async (transactionId: string) => {
+  try {
+    loadingDetail.value = true
+    const trx = transactions.value.find(t => t.id === transactionId)
+    
+    if (trx) {
+      selectedTransaction.value = trx
+      
+      // Fetch detailed order data from API
+      const response = await orderService.getOrder(parseInt(transactionId))
+      
+      if (response.status === 'success') {
+        selectedOrder.value = response.data
+      }
+      
+      showDetailModal.value = true
+    }
+  } catch (error) {
+    console.error('Failed to fetch order detail:', error)
+    // Still show modal with basic transaction info even if API fails
+    const trx = transactions.value.find(t => t.id === transactionId)
+    if (trx) {
+      selectedTransaction.value = trx
+      selectedOrder.value = null
+      showDetailModal.value = true
+    }
+  } finally {
+    loadingDetail.value = false
+  }
+}
+
+// Lifecycle
+onMounted(async () => {
+  await fetchReports()
+})
+</script>

@@ -1,4 +1,4 @@
-  <template>
+<template>
     <AdminLayout>
       <!-- <PageBreadcrumb pageTitle="Product Management" /> -->
       <div class="container mx-auto p-6">
@@ -239,7 +239,7 @@
         <!-- Delete Confirmation Modal - Removed, replaced with SweetAlert -->
       </div>
     </AdminLayout>
-  </template>
+</template>
 
 <script setup lang="ts">
 defineOptions({

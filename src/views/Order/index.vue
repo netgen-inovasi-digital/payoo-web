@@ -1,6 +1,5 @@
 <template>
   <AdminLayout>
-
     <div class="container mx-auto p-6">
       <div class="grid grid-cols-12 gap-6">
         <!-- Left side - Orders and Products -->

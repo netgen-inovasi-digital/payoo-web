@@ -1,145 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { stockService } from '@/api/services/stock.service'
-import { productService } from '@/api/services/product.service'
-import { useAlert } from '@/composables/useAlert'
-import { useFormatters } from '@/composables/useFormatters'
-import type { Stock, StockTransaction } from '@/api/types/stock.types'
-import type { Product } from '@/api/types/product.types'
-
-defineOptions({
-  name: 'StockIndex'
-})
-
-// Composables
-const alert = useAlert()
-const { formatDate, formatCurrency } = useFormatters()
-
-// State
-const stocks = ref<Stock[]>([])
-const products = ref<Product[]>([])
-const loading = ref(false)
-const showStockModal = ref(false)
-const searchQuery = ref('')
-const selectedProductId = ref<number | null>(null)
-const selectedType = ref<'in' | 'out' | ''>('')
-const dateFrom = ref('')
-const dateTo = ref('')
-
-// Form
-const stockForm = ref<StockTransaction>({
-  product_id: 0,
-  quantity: 1,
-  type: 'in',
-  buy_price: null,
-  notes: '',
-  date: new Date().toISOString().slice(0, 16)
-})
-
-// Computed
-const filteredStocks = computed(() => {
-  return stocks.value.filter(stock => {
-    const matchesSearch = !searchQuery.value || 
-      stock.product_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      stock.notes.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesProduct = !selectedProductId.value || stock.product_id === selectedProductId.value
-    const matchesType = !selectedType.value || stock.type === selectedType.value
-    
-    const matchesDateFrom = !dateFrom.value || new Date(stock.date) >= new Date(dateFrom.value)
-    const matchesDateTo = !dateTo.value || new Date(stock.date) <= new Date(dateTo.value)
-    
-    return matchesSearch && matchesProduct && matchesType && matchesDateFrom && matchesDateTo
-  })
-})
-
-// Methods
-const fetchStocks = async () => {
-  try {
-    loading.value = true
-    const response = await stockService.getStocks()
-    if (response.status === 'success') {
-      stocks.value = response.data
-    }
-  } catch (error) {
-    console.error('Failed to fetch stocks:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const fetchProducts = async () => {
-  try {
-    const response = await productService.getProducts()
-    if (response.status === 'success') {
-      products.value = response.data
-    }
-  } catch (error) {
-    console.error('Failed to fetch products:', error)
-  }
-}
-
-const openStockModal = () => {
-  stockForm.value = {
-    product_id: 0,
-    quantity: 1,
-    type: 'in',
-    buy_price: null,
-    notes: '',
-    date: new Date().toISOString().slice(0, 16)
-  }
-  showStockModal.value = true
-}
-
-const saveStock = async () => {
-  const confirmed = await alert.confirmSave(
-    `transaksi ${stockForm.value.type === 'in' ? 'masuk' : 'keluar'}`,
-    false
-  )
-
-  if (!confirmed) return
-
-  try {
-    loading.value = true
-    
-    // Add new stock
-    await stockService.createStock(stockForm.value)
-
-    await fetchStocks() // Refresh the list
-    showStockModal.value = false
-    
-    alert.success(
-      'Berhasil!',
-      'Transaksi stock berhasil ditambahkan.'
-    )
-  } catch (error) {
-    console.error('Failed to save stock:', error)
-    alert.error(
-      'Error!', 
-      'Terjadi kesalahan saat menyimpan transaksi.'
-    )
-  } finally {
-    loading.value = false
-  }
-}
-
-
-
-// Watchers
-watch([searchQuery, selectedProductId, selectedType, dateFrom, dateTo], () => {
-  // Filter will be reactive automatically through computed
-}, { deep: true })
-
-// Lifecycle
-onMounted(async () => {
-  await Promise.all([
-    fetchStocks(),
-    fetchProducts()
-  ])
-})
-</script>
-
 <template>
   <AdminLayout>
     <div class="container mx-auto p-6">
@@ -414,3 +272,145 @@ onMounted(async () => {
     </div>
   </AdminLayout>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
+import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { stockService } from '@/api/services/stock.service'
+import { productService } from '@/api/services/product.service'
+import { useAlert } from '@/composables/useAlert'
+import { useFormatters } from '@/composables/useFormatters'
+import type { Stock, StockTransaction } from '@/api/types/stock.types'
+import type { Product } from '@/api/types/product.types'
+
+defineOptions({
+  name: 'StockIndex'
+})
+
+// Composables
+const alert = useAlert()
+const { formatDate, formatCurrency } = useFormatters()
+
+// State
+const stocks = ref<Stock[]>([])
+const products = ref<Product[]>([])
+const loading = ref(false)
+const showStockModal = ref(false)
+const searchQuery = ref('')
+const selectedProductId = ref<number | null>(null)
+const selectedType = ref<'in' | 'out' | ''>('')
+const dateFrom = ref('')
+const dateTo = ref('')
+
+// Form
+const stockForm = ref<StockTransaction>({
+  product_id: 0,
+  quantity: 1,
+  type: 'in',
+  buy_price: null,
+  notes: '',
+  date: new Date().toISOString().slice(0, 16)
+})
+
+// Computed
+const filteredStocks = computed(() => {
+  return stocks.value.filter(stock => {
+    const matchesSearch = !searchQuery.value || 
+      stock.product_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      stock.notes.toLowerCase().includes(searchQuery.value.toLowerCase())
+    
+    const matchesProduct = !selectedProductId.value || stock.product_id === selectedProductId.value
+    const matchesType = !selectedType.value || stock.type === selectedType.value
+    
+    const matchesDateFrom = !dateFrom.value || new Date(stock.date) >= new Date(dateFrom.value)
+    const matchesDateTo = !dateTo.value || new Date(stock.date) <= new Date(dateTo.value)
+    
+    return matchesSearch && matchesProduct && matchesType && matchesDateFrom && matchesDateTo
+  })
+})
+
+// Methods
+const fetchStocks = async () => {
+  try {
+    loading.value = true
+    const response = await stockService.getStocks()
+    if (response.status === 'success') {
+      stocks.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch stocks:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const fetchProducts = async () => {
+  try {
+    const response = await productService.getProducts()
+    if (response.status === 'success') {
+      products.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch products:', error)
+  }
+}
+
+const openStockModal = () => {
+  stockForm.value = {
+    product_id: 0,
+    quantity: 1,
+    type: 'in',
+    buy_price: null,
+    notes: '',
+    date: new Date().toISOString().slice(0, 16)
+  }
+  showStockModal.value = true
+}
+
+const saveStock = async () => {
+  const confirmed = await alert.confirmSave(
+    `transaksi ${stockForm.value.type === 'in' ? 'masuk' : 'keluar'}`,
+    false
+  )
+
+  if (!confirmed) return
+
+  try {
+    loading.value = true
+    
+    // Add new stock
+    await stockService.createStock(stockForm.value)
+
+    await fetchStocks() // Refresh the list
+    showStockModal.value = false
+    
+    alert.success(
+      'Berhasil!',
+      'Transaksi stock berhasil ditambahkan.'
+    )
+  } catch (error) {
+    console.error('Failed to save stock:', error)
+    alert.error(
+      'Error!', 
+      'Terjadi kesalahan saat menyimpan transaksi.'
+    )
+  } finally {
+    loading.value = false
+  }
+}
+
+
+
+// Watchers
+watch([searchQuery, selectedProductId, selectedType, dateFrom, dateTo], () => {
+  // Filter will be reactive automatically through computed
+}, { deep: true })
+
+// Lifecycle
+onMounted(async () => {
+  await Promise.all([
+    fetchStocks(),
+    fetchProducts()
+  ])
+})
+</script>
