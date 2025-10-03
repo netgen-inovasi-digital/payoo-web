@@ -112,6 +112,27 @@ export const useFormatters = () => {
     return number.toLocaleString('id-ID')
   }
 
+  /**
+   * Format unit to Indonesian
+   * @param unit - Unit string
+   * @returns Formatted unit string
+   */
+  const formatUnit = (unit: string) => {
+    const units: Record<string, string> = {
+      pcs: 'Pcs',
+      gr: 'Gram',
+      kg: 'Kilogram', 
+      ml: 'Mililiter',
+      liter: 'Liter',
+      lembar: 'Lembar',
+      slice: 'Slice',
+      butir: 'Butir',
+      pack: 'Pack',
+      botol: 'Botol'
+    }
+    return units[unit] || unit
+  }
+
   return {
     formatDate,
     formatCurrency,
@@ -119,6 +140,7 @@ export const useFormatters = () => {
     formatPaymentMethod,
     formatStatus,
     formatTransactionType,
-    formatNumber
+    formatNumber,
+    formatUnit
   }
 }

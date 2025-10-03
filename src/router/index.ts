@@ -44,6 +44,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/komposisi',
+      name: 'Komposisi',
+      component: () => import('../views/Komposisi/index.vue'),
+      meta: {
+        title: 'Komposisi',
+        requiresAuth: true
+      },
+    },
+    {
       path: '/pembelian',
       name: 'Pembelian',
       component: () => import('../views/Pembelian/index.vue'),

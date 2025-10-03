@@ -84,7 +84,23 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
-                <tr v-for="(product, index) in filteredProducts" :key="product.id">
+                <tr v-if="loading" class="text-center">
+                  <td colspan="7" class="px-6 py-8 text-gray-500">
+                    <div class="flex justify-center items-center">
+                      <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      Loading...
+                    </div>
+                  </td>
+                </tr>
+                <tr v-else-if="filteredProducts.length === 0" class="text-center">
+                  <td colspan="7" class="px-6 py-8 text-gray-500">
+                    {{ searchQuery ? 'Tidak ada produk yang sesuai dengan pencarian' : 'Belum ada produk' }}
+                  </td>
+                </tr>
+                <tr v-else v-for="(product, index) in filteredProducts" :key="product.id">
                   <td class="px-6 py-4 text-sm text-gray-500">{{ index + 1 }}</td>
                   <td class="px-6 py-4">
                     <img :src="product.photo" :alt="product.name" class="h-12 w-12 object-cover rounded-lg"
