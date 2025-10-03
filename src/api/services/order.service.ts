@@ -2,7 +2,6 @@ import api from '../index'
 import type { ApiResponse } from '../types'
 import type { 
   Order, 
-  OrderFilters
 } from '../types/order.types'
 
 export interface OrderCreatePayload {
@@ -21,36 +20,6 @@ export interface OrderCreatePayload {
 }
 
 export const orderService = {
-  // Get all orders for a shop
-  async getOrders(shopId: number = 1, filters?: OrderFilters): Promise<ApiResponse<Order[]>> {
-    try {
-      const params = new URLSearchParams()
-      
-      if (filters?.search) {
-        params.append('search', filters.search)
-      }
-      if (filters?.status) {
-        params.append('status', filters.status)
-      }
-      if (filters?.date_from) {
-        params.append('date_from', filters.date_from)
-      }
-      if (filters?.date_to) {
-        params.append('date_to', filters.date_to)
-      }
-
-      const url = params.toString() 
-        ? `/orders/shop/${shopId}?${params.toString()}` 
-        : `/orders/shop/${shopId}`
-      
-      const response = await api.get<ApiResponse<Order[]>>(url)
-      return response.data
-    } catch (error) {
-      console.error('Error fetching orders:', error)
-      throw error
-    }
-  },
-
   // Get single order by ID
   async getOrder(id: number): Promise<ApiResponse<Order>> {
     try {

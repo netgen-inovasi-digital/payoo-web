@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { reportService } from '@/api/services/report.service'
+import { orderService } from '@/api/services/order.service'
+import type { ReportData, ReportPeriod } from '@/api/types/report.types'
+import type { Order } from '@/api/types/order.types'
+
+defineOptions({
+  name: 'RiwayatIndex'
+})
 
 interface TransactionItem {
   name: string;
@@ -10,106 +18,135 @@ interface TransactionItem {
 
 interface Transaction {
   id: string;
-  date: string; // format dd/mm/yyyy
+  date: string;
   cashier: string;
   customer: string;
   revenue: number;
   items: number;
-  details: TransactionItem[];
+  payment_method: string;
+  status: string;
+  notes: string;
+  details?: TransactionItem[];
 }
 
 // State
-const showFilterModal = ref(false)
 const searchQuery = ref('')
 const showDetailModal = ref(false)
 const selectedTransaction = ref<Transaction | null>(null)
+const selectedOrder = ref<Order | null>(null)
+const loading = ref(false)
+const loadingDetail = ref(false)
+const reportData = ref<ReportData | null>(null)
 
 // Filter form
 const filterForm = ref({
-  startDate: '',
-  endDate: ''
+  period: 'today' as ReportPeriod
 })
 
-// Transactions data
-const transactions = ref<Transaction[]>([
-  {
-    id: '30082501',
-    date: '30/08/2025',
-    cashier: 'Rahmat B.',
-    customer: 'Dijah',
-    revenue: 30000,
-    items: 2,
-    details: [
-      { name: 'Nasi Goreng', qty: 1, price: 15000 },
-      { name: 'Es Teh', qty: 1, price: 15000 }
-    ]
-  },
-  {
-    id: '30082502',
-    date: '29/08/2025',
-    cashier: 'Rahmat B.',
-    customer: 'Rohmat',
-    revenue: 30000,
-    items: 2,
-    details: [
-      { name: 'Mie Ayam', qty: 1, price: 20000 },
-      { name: 'Es Jeruk', qty: 1, price: 10000 }
-    ]
-  }
-])
+// Transactions data - computed from API response
+const transactions = computed<Transaction[]>(() => {
+  if (!reportData.value?.orders) return []
+  
+  return reportData.value.orders.map(order => ({
+    id: order.id,
+    date: formatDate(order.created_at),
+    cashier: 'Admin', // Hardcode for now since API doesn't provide cashier info
+    customer: `Customer #${order.id}`, // Hardcode for now since API doesn't provide customer info
+    revenue: parseFloat(order.total),
+    items: parseInt(order.total_items),
+    payment_method: order.payment_method,
+    status: order.status,
+    notes: order.notes
+  }))
+})
 
-// Helper untuk parse tanggal (dd/mm/yyyy)
-const parseDate = (dateStr: string) => {
-  const [day, month, year] = dateStr.split('/').map(Number)
-  return new Date(year, month - 1, day)
+// Helper functions
+const formatDate = (dateStr: string) => {
+  return new Date(dateStr).toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: '2-digit', 
+    day: '2-digit'
+  })
+}
+
+const formatPaymentMethod = (method: string) => {
+  const methods: Record<string, string> = {
+    cash: 'Tunai',
+    gopay: 'GoPay',
+    ovo: 'OVO',
+    dana: 'DANA',
+    qris: 'QRIS'
+  }
+  return methods[method] || method
 }
 
 // Computed
 const filteredTransactions = computed(() => {
   const query = searchQuery.value.toLowerCase()
-  let data = transactions.value.filter(transaction =>
+  return transactions.value.filter(transaction =>
     transaction.id.toLowerCase().includes(query) ||
     transaction.customer.toLowerCase().includes(query) ||
-    transaction.cashier.toLowerCase().includes(query)
+    transaction.cashier.toLowerCase().includes(query) ||
+    transaction.payment_method.toLowerCase().includes(query)
   )
-
-  // Filter berdasarkan tanggal mulai & akhir
-  if (filterForm.value.startDate && filterForm.value.endDate) {
-    const start = new Date(filterForm.value.startDate)
-    const end = new Date(filterForm.value.endDate)
-    data = data.filter(trx => {
-      const trxDate = parseDate(trx.date)
-      return trxDate >= start && trxDate <= end
-    })
-  }
-
-  return data
 })
 
 const totalRevenue = computed(() => {
   return filteredTransactions.value.reduce((sum, trx) => sum + trx.revenue, 0)
 })
 
-// Actions
-const openFilter = () => {
-  showFilterModal.value = true
-}
-
-const applyFilter = () => {
-  showFilterModal.value = false
-}
-
-const printReport = () => {
-  window.print()
-}
-
-const viewDetail = (transactionId: string) => {
-  const trx = transactions.value.find(t => t.id === transactionId)
-  if (trx) {
-    selectedTransaction.value = trx
-    showDetailModal.value = true
+// Methods
+const fetchReports = async () => {
+  try {
+    loading.value = true
+    const shopId = '1' // Hardcode for now, should get from auth/store
+    const response = await reportService.getReports(shopId, filterForm.value.period)
+    
+    if (response.status === 'success') {
+      reportData.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch reports:', error)
+  } finally {
+    loading.value = false
   }
 }
+
+const viewDetail = async (transactionId: string) => {
+  try {
+    loadingDetail.value = true
+    const trx = transactions.value.find(t => t.id === transactionId)
+    
+    if (trx) {
+      selectedTransaction.value = trx
+      
+      // Fetch detailed order data from API
+      const response = await orderService.getOrder(parseInt(transactionId))
+      
+      if (response.status === 'success') {
+        selectedOrder.value = response.data
+      }
+      
+      showDetailModal.value = true
+    }
+  } catch (error) {
+    console.error('Failed to fetch order detail:', error)
+    // Still show modal with basic transaction info even if API fails
+    const trx = transactions.value.find(t => t.id === transactionId)
+    if (trx) {
+      selectedTransaction.value = trx
+      selectedOrder.value = null
+      showDetailModal.value = true
+    }
+  } finally {
+    loadingDetail.value = false
+  }
+}
+
+// Lifecycle
+onMounted(async () => {
+  await fetchReports()
+})
 </script>
 
 <template>
@@ -129,13 +166,29 @@ const viewDetail = (transactionId: string) => {
         </div>
 
         <div class="flex gap-2 ml-auto">
-          <button @click="openFilter" class="px-4 py-2 bg-white text-emerald-600 border border-emerald-600 rounded-lg">
-            Filter
-          </button>
-          <button @click="printReport" class="px-4 py-2 bg-white text-emerald-600 border border-emerald-600 rounded-lg">
-            Cetak
-          </button>
+          <select 
+            v-model="filterForm.period" 
+            @change="fetchReports"
+            class="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+          >
+            <option value="today">Hari Ini</option>
+            <option value="this_week">Minggu Ini</option>
+            <option value="this_month">Bulan Ini</option>
+          </select>
         </div>
+      </div>
+
+      <!-- Period Info -->
+      <div v-if="reportData" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <p class="text-sm text-blue-800">
+          <strong>Periode:</strong> {{ reportData.period === 'today' ? 'Hari Ini' : reportData.period === 'this_week' ? 'Minggu Ini' : 'Bulan Ini' }}
+          <span class="ml-4">
+            <strong>Range:</strong> {{ formatDate(reportData.date_range.start) }} - {{ formatDate(reportData.date_range.end) }}
+          </span>
+          <span class="ml-4">
+            <strong>Total Orders:</strong> {{ reportData.total_orders }}
+          </span>
+        </p>
       </div>
 
       <!-- Table -->
@@ -145,21 +198,40 @@ const viewDetail = (transactionId: string) => {
             <tr class="bg-gray-50">
               <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Id Transaksi</th>
               <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Tanggal</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Kasir</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Pelanggan</th>
-              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Pendapatan</th>
+              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Metode Bayar</th>
               <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Item</th>
+              <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Total</th>
               <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
+            <tr v-if="loading">
+              <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                Loading...
+              </td>
+            </tr>
+            <tr v-else-if="filteredTransactions.length === 0">
+              <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                Tidak ada data transaksi
+              </td>
+            </tr>
             <tr v-for="transaction in filteredTransactions" :key="transaction.id">
               <td class="px-6 py-4 text-sm text-gray-500">{{ transaction.id }}</td>
               <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.date }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.cashier }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.customer }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">Rp{{ transaction.revenue.toLocaleString() }}</td>
+              <td class="px-6 py-4 text-sm text-gray-900">
+                <span class="px-2 py-1 text-xs rounded-full"
+                  :class="{
+                    'bg-green-100 text-green-800': transaction.payment_method === 'cash',
+                    'bg-blue-100 text-blue-800': transaction.payment_method === 'gopay',
+                    'bg-purple-100 text-purple-800': transaction.payment_method === 'ovo',
+                    'bg-yellow-100 text-yellow-800': transaction.payment_method === 'dana',
+                    'bg-gray-100 text-gray-800': transaction.payment_method === 'qris'
+                  }">
+                  {{ formatPaymentMethod(transaction.payment_method) }}
+                </span>
+              </td>
               <td class="px-6 py-4 text-sm text-gray-500">{{ transaction.items }}</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Rp{{ transaction.revenue.toLocaleString() }}</td>
               <td class="px-6 py-4 text-sm">
                 <button @click="viewDetail(transaction.id)" class="text-blue-600 hover:text-blue-800">Detail</button>
               </td>
@@ -173,63 +245,87 @@ const viewDetail = (transactionId: string) => {
       </div>
     </div>
 
-    <!-- Filter Modal -->
-    <div v-if="showFilterModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div class="bg-white rounded-lg w-full max-w-md p-6 shadow-lg">
-        <h3 class="text-lg font-semibold mb-4">Filter Transaksi</h3>
-
-        <div class="space-y-4">
-          <!-- Date Range -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
-              <input v-model="filterForm.startDate" type="date" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
-              <input v-model="filterForm.endDate" type="date" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-end gap-3">
-          <button @click="showFilterModal = false" class="px-4 py-2 text-gray-600 border rounded-lg">Batal</button>
-          <button @click="applyFilter" class="px-4 py-2 bg-emerald-500 text-white rounded-lg">Terapkan</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Detail Modal -->
     <div v-if="showDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div class="bg-white rounded-lg w-full max-w-lg p-6 shadow-lg">
+      <div class="bg-white rounded-lg w-full max-w-2xl p-6 shadow-lg">
         <h3 class="text-lg font-semibold mb-4">Detail Transaksi</h3>
 
-        <div v-if="selectedTransaction">
-          <p class="mb-2"><strong>ID:</strong> {{ selectedTransaction.id }}</p>
-          <p class="mb-2"><strong>Tanggal:</strong> {{ selectedTransaction.date }}</p>
-          <p class="mb-2"><strong>Kasir:</strong> {{ selectedTransaction.cashier }}</p>
-          <p class="mb-2"><strong>Pelanggan:</strong> {{ selectedTransaction.customer }}</p>
+        <!-- Loading Detail -->
+        <div v-if="loadingDetail" class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          <p class="mt-2 text-gray-600">Memuat detail transaksi...</p>
+        </div>
 
-          <table class="w-full mt-4 border rounded-lg">
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="px-4 py-2 text-left text-sm">Item</th>
-                <th class="px-4 py-2 text-sm">Qty</th>
-                <th class="px-4 py-2 text-sm">Harga</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, idx) in selectedTransaction.details" :key="idx" class="border-t">
-                <td class="px-4 py-2 text-sm">{{ item.name }}</td>
-                <td class="px-4 py-2 text-sm text-center">{{ item.qty }}</td>
-                <td class="px-4 py-2 text-sm">Rp{{ item.price.toLocaleString() }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Transaction Detail -->
+        <div v-else-if="selectedTransaction" class="space-y-6">
+          <!-- Basic Info -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="mb-2"><strong>ID Transaksi:</strong> {{ selectedTransaction.id }}</p>
+              <p class="mb-0"><strong>Tanggal:</strong> {{ selectedTransaction.date }}</p>
+            </div>
+            <div>
+              <p class="mb-2"><strong>Metode Bayar:</strong> {{ formatPaymentMethod(selectedTransaction.payment_method) }}</p>
+              <p class="mb-0"><strong>Total Item:</strong> {{ selectedTransaction.items }}</p>
+            </div>
+          </div>
+          <p class="mb-2 -mt-2"><strong>Catatan:</strong> {{ selectedTransaction.notes || '-' }}</p>
 
-          <p class="mt-4 font-medium text-right">
-            Total: Rp{{ selectedTransaction.revenue.toLocaleString() }}
-          </p>
+          <!-- Order Items (if available from API) -->
+          <div v-if="selectedOrder?.order_items && selectedOrder.order_items.length > 0" class="border-t pt-4">
+            <h4 class="font-medium mb-3">Detail Produk:</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full border border-gray-200 rounded-lg">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Product ID</th>
+                    <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Qty</th>
+                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">Harga</th>
+                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr v-for="item in selectedOrder.order_items" :key="item.id" class="hover:bg-gray-50">
+                    <td class="px-4 py-2 text-sm">{{ item.name }}</td>
+                    <td class="px-4 py-2 text-sm text-center">{{ item.quantity }}</td>
+                    <td class="px-4 py-2 text-sm text-right">Rp{{ item.price.toLocaleString() }}</td>
+                    <td class="px-4 py-2 text-sm text-right">Rp{{ (item.price * item.quantity).toLocaleString() }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Payment Summary -->
+          <div v-if="selectedOrder" class="border-t pt-4 space-y-2">
+            <div class="flex justify-between text-sm">
+              <span>Subtotal:</span>
+              <span>Rp{{ selectedOrder.total.toLocaleString() }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span>Pajak:</span>
+              <span>Rp{{ (selectedOrder.tax || 0).toLocaleString() }}</span>
+            </div>
+            <div class="flex justify-between text-lg font-bold border-t pt-2">
+              <span>Total:</span>
+              <span>Rp{{ selectedOrder.total.toLocaleString() }}</span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600">
+              <span>Dibayar:</span>
+              <span>Rp{{ selectedOrder.amount_paid.toLocaleString() }}</span>
+            </div>
+            <div v-if="(selectedOrder.change_money || 0) > 0" class="flex justify-between text-sm text-gray-600">
+              <span>Kembalian:</span>
+              <span>Rp{{ (selectedOrder.change_money || 0).toLocaleString() }}</span>
+            </div>
+          </div>
+          
+          <!-- Fallback total if no detailed order -->
+          <div v-else class="border-t pt-4">
+            <p class="text-lg font-medium text-right">
+              <strong>Total: Rp{{ selectedTransaction.revenue.toLocaleString() }}</strong>
+            </p>
+          </div>
         </div>
 
         <div class="mt-6 flex justify-end">

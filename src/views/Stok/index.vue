@@ -252,7 +252,7 @@ onMounted(async () => {
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tanggal
+                  No
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Produk
@@ -261,10 +261,13 @@ onMounted(async () => {
                   Tipe
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Harga Beli
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Quantity
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga Beli
+                  Tanggal
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Catatan
@@ -284,7 +287,7 @@ onMounted(async () => {
               </tr>
               <tr v-else v-for="stock in filteredStocks" :key="stock.id" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ formatDate(stock.date) }}
+                  {{ filteredStocks.indexOf(stock) + 1 }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900">{{ stock.product_name }}</div>
@@ -300,14 +303,17 @@ onMounted(async () => {
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ stock.buy_price ? formatCurrency(stock.buy_price) : '-' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ stock.quantity }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ stock.buy_price ? formatCurrency(stock.buy_price) : '-' }}
+                  {{ formatDate(stock.date) }}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-900">
                   <div class="max-w-xs truncate" :title="stock.notes">
-                    {{ stock.notes }}
+                    {{ stock.notes ? stock.notes : '-' }}
                   </div>
                 </td>
               </tr>
