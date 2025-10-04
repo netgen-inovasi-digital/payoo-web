@@ -145,7 +145,7 @@
             <form @submit.prevent="saveProduct" class="space-y-4">
               <!-- Product Image -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Product Image<span class="text-error-500"> *</span></label>
                 <input
                   type="file"
                   accept="image/*"
@@ -171,14 +171,14 @@
 
               <!-- Product Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Product Name<span class="text-error-500"> *</span></label>
                 <input v-model="productForm.name" type="text" required
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
               <!-- Description -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description<span class="text-error-500"> *</span></label>
                 <textarea v-model="productForm.description" required
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
                   rows="3"></textarea>
@@ -186,7 +186,7 @@
 
               <!-- Category -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Category<span class="text-error-500"> *</span></label>
                 <select v-model="productForm.category_id" required
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500">
                   <option value="0">Select category</option>
@@ -198,14 +198,14 @@
 
               <!-- Cost Price -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Modal (Rp)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Modal (Rp)<span class="text-error-500"> *</span></label>
                 <input v-model.number="productForm.cost_price" type="number" required min="0"
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
               <!-- Selling Price -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Jual (Rp)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Jual (Rp)<span class="text-error-500"> *</span></label>
                 <input v-model.number="productForm.selling_price" type="number" required min="0"
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>

@@ -19,8 +19,9 @@
         class="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-100 shadow-sm"
       >
         <img
-          :src="shop?.photo"
+          :src="shop?.photo || 'https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"
           alt="Foto Toko"
+          onerror="this.src='https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"
           class="h-full w-full object-cover object-center"
         />
       </div>
@@ -168,7 +169,7 @@
         <form @submit.prevent="saveChanges" class="space-y-4">
           <!-- Upload Foto -->
           <div>
-            <label class="block text-sm font-medium">Foto Toko</label>
+            <label class="block text-sm font-medium">Foto Toko<span class="text-error-500"> *</span></label>
             <input
               type="file"
               accept="image/*"
@@ -185,6 +186,7 @@
             <div v-if="form.photo" class="mt-3">
               <img
                 :src="form.photo || imageUpload.previewUrl.value"
+                onerror="this.src='https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"
                 alt="Preview Foto"
                 class="h-24 rounded-lg object-cover"
               />
@@ -193,7 +195,7 @@
 
           <!-- Nama Toko -->
           <div>
-            <label class="block text-sm font-medium">Nama Toko</label>
+            <label class="block text-sm font-medium">Nama Toko<span class="text-error-500"> *</span></label>
             <input
               v-model="form.name"
               type="text"
@@ -203,7 +205,7 @@
 
           <!-- Email -->
           <div>
-            <label class="block text-sm font-medium">Email</label>
+            <label class="block text-sm font-medium">Email<span class="text-error-500"> *</span></label>
             <input
               v-model="form.email"
               type="email"
@@ -214,7 +216,7 @@
 
           <!-- Tipe Toko -->
           <div>
-            <label class="block text-sm font-medium">Tipe Toko</label>
+            <label class="block text-sm font-medium">Tipe Toko<span class="text-error-500"> *</span></label>
             <select
               v-model="form.type"
               required
@@ -228,7 +230,7 @@
 
           <!-- Alamat -->
           <div>
-            <label class="block text-sm font-medium">Alamat</label>
+            <label class="block text-sm font-medium">Alamat<span class="text-error-500"> *</span></label>
             <input
               v-model="form.address"
               type="text"
@@ -238,7 +240,7 @@
 
           <!-- Province -->
           <div>
-            <label class="block text-sm font-medium">Provinsi</label>
+            <label class="block text-sm font-medium">Provinsi<span class="text-error-500"> *</span></label>
             <select
               v-model="formProvinceId"
               required
@@ -257,7 +259,7 @@
 
           <!-- City -->
           <div>
-            <label class="block text-sm font-medium">Kota</label>
+            <label class="block text-sm font-medium">Kota<span class="text-error-500"> *</span></label>
             <select
               v-model="formCityId"
               required
@@ -279,7 +281,7 @@
 
           <!-- Telepon -->
           <div>
-            <label class="block text-sm font-medium">Telepon</label>
+            <label class="block text-sm font-medium">Telepon<span class="text-error-500"> *</span></label>
             <input
               v-model="form.phone"
               type="text"

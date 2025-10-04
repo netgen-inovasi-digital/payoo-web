@@ -5,7 +5,7 @@
       @click.prevent="toggleDropdown"
     >
       <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img :src="userPhoto || '/images/user/foto.jpg'" alt="User" />
+        <img :src="userPhoto || '/images/user/usernopic.jpg'" alt="User" onerror="this.src='https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"/>
       </span>
 
       <span class="block mr-1 font-medium text-theme-sm">{{ userName }}</span>
@@ -38,7 +38,7 @@
             Edit profile
           </button>
         </li>
-        <li>
+        <!-- <li>
           <router-link
             to="/chat"
             class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
@@ -46,7 +46,7 @@
             <SettingsIcon class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
             Account settings
           </router-link>
-        </li>
+        </li> -->
       </ul>
       <router-link
         to="/signin"
@@ -68,7 +68,7 @@
         <form @submit.prevent="saveProfile" class="space-y-4">
           <!-- Upload Foto -->
           <div>
-            <label class="block text-sm font-medium">Foto Profil</label>
+            <label class="block text-sm font-medium">Foto Profil<span class="text-error-500"> *</span></label>
             <input
               type="file"
               accept="image/*"
@@ -92,7 +92,7 @@
           </div>
           <!-- Nama -->
           <div>
-            <label class="block text-sm font-medium">Nama</label>
+            <label class="block text-sm font-medium">Nama<span class="text-error-500"> *</span></label>
             <input
               v-model="profileForm.name"
               type="text"
@@ -101,7 +101,7 @@
           </div>
           <!-- Email -->
           <div>
-            <label class="block text-sm font-medium">Email</label>
+            <label class="block text-sm font-medium">Email<span class="text-error-500"> *</span></label>
             <input
               v-model="profileForm.email"
               type="email"
@@ -111,7 +111,7 @@
           </div>
           <!-- Telepon -->
           <div>
-            <label class="block text-sm font-medium">Telepon</label>
+            <label class="block text-sm font-medium">Telepon<span class="text-error-500"> *</span></label>
             <input
               v-model="profileForm.phone"
               type="text"

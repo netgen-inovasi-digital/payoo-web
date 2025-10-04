@@ -177,7 +177,7 @@
           <form @submit.prevent="saveStock" class="space-y-4">
             <!-- Product Selection -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Produk *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Produk<span class="text-error-500"> *</span></label>
               <select
                 v-model="stockForm.product_id"
                 required
@@ -194,7 +194,7 @@
 
             <!-- Quantity -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity<span class="text-error-500"> *</span></label>
               <input
                 v-model.number="stockForm.quantity"
                 type="number"
@@ -206,7 +206,7 @@
 
             <!-- Buy Price -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli<span class="text-error-500"> *</span></label>
               <input
                 v-model.number="stockForm.buy_price"
                 type="number"
@@ -218,7 +218,7 @@
 
             <!-- Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal<span class="text-error-500"> *</span></label>
               <input
                 v-model="stockForm.date"
                 type="datetime-local"

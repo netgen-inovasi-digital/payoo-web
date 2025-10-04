@@ -165,6 +165,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/signup-shop',
+      name: 'SignupShop',
+      component: () => import('../views/Auth/SignupShop.vue'),
+      meta: {
+        title: 'Create Shop',
+        requiresAuth: true
+      },
+    },
+    {
       path: '/403',
       name: 'Forbidden',
       component: () => import('../views/Errors/Forbidden.vue'),

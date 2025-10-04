@@ -18,7 +18,7 @@
               </p>
             </div>
             <div>
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+              <!-- <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
                 <button
                   class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
                 >
@@ -76,7 +76,7 @@
                     >Or</span
                   >
                 </div>
-              </div>
+              </div> -->
               <form @submit.prevent="handleSubmit">
                 <div class="space-y-5">
                   <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -351,6 +351,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useToast } from '@/composables/useToast'
+import { useAlert } from '@/composables/useAlert'
 
 defineOptions({ name: 'SignupPage' })
 
@@ -367,6 +368,7 @@ const loading = ref(false)
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
+const alert = useAlert()
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
@@ -395,8 +397,12 @@ const handleSubmit = async () => {
       confirmPassword: confirmPassword.value,
     })
     if (response.status === 'success') {
-      toast.success('Registration successful')
-      router.push('/')
+      // Show success alert and redirect to shop creation
+      await alert.success(
+        'Pendaftaran Berhasil!', 
+        'Silahkan buat toko terlebih dahulu untuk melanjutkan.'
+      )
+      router.push('/signup-shop')
     }
   } catch {
     // error already set in store

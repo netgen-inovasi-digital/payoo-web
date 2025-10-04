@@ -100,7 +100,7 @@
             <!-- Inputs -->
             <div v-if="cartItems.length > 0" class="space-y-4 mb-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran<span class="text-error-500"> *</span></label>
                 <select v-model="orderForm.payment_method"
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
                   <option value="">Pilih metode pembayaran</option>
@@ -110,7 +110,7 @@
                 </select>
               </div>
               <div v-if ="orderForm.payment_method === 'cash'">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Dibayar</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Dibayar<span class="text-error-500"> *</span></label>
                 <input type="number" v-model="orderForm.amount_paid"
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Masukkan jumlah yang dibayar..." />

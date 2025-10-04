@@ -183,7 +183,7 @@
           <form @submit.prevent="saveStock" class="space-y-4">
             <!-- Product Selection -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Produk *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Produk<span class="text-error-500"> *</span></label>
               <select
                 v-model="stockForm.product_id"
                 required
@@ -198,7 +198,7 @@
 
             <!-- Transaction Type -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi<span class="text-error-500"> *</span></label>
               <select
                 v-model="stockForm.type"
                 required
@@ -212,7 +212,7 @@
 
             <!-- Quantity -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity<span class="text-error-500"> *</span></label>
               <input
                 v-model.number="stockForm.quantity"
                 type="number"
@@ -224,8 +224,9 @@
 
             <!-- Buy Price (only for 'in' type) -->
             <div v-if="stockForm.type === 'in'">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli<span class="text-error-500"> *</span></label>
               <input
+                :required="stockForm.type === 'in'"
                 v-model.number="stockForm.buy_price"
                 type="number"
                 min="0"
@@ -235,7 +236,7 @@
 
             <!-- Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal<span class="text-error-500"> *</span></label>
               <input
                 v-model="stockForm.date"
                 type="datetime-local"
