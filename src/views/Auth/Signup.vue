@@ -86,7 +86,7 @@
                         for="fullname"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Name<span class="text-error-500">*</span>
+                        Name<span class="text-error-500"> *</span>
                       </label>
                       <input
                         v-model="fullname"
@@ -104,7 +104,7 @@
                         for="phone"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Phone<span class="text-error-500">*</span>
+                        Phone<span class="text-error-500"> *</span>
                       </label>
                       <input
                         v-model="phone"
@@ -123,7 +123,7 @@
                       for="email"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Email<span class="text-error-500">*</span>
+                      Email<span class="text-error-500"> *</span>
                     </label>
                     <input
                       v-model="email"
@@ -141,7 +141,7 @@
                       for="password"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Password<span class="text-error-500">*</span>
+                      Password<span class="text-error-500"> *</span>
                     </label>
                     <div class="relative">
                       <input
@@ -197,7 +197,7 @@
                       for="confirmPassword"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Confirm Password<span class="text-error-500">*</span>
+                      Confirm Password<span class="text-error-500"> *</span>
                     </label>
                     <div class="relative">
                       <input

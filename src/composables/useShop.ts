@@ -8,11 +8,25 @@ const shop = ref<Shop | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 let fetchPromise: Promise<Shop | null> | null = null
+let currentUserId: number | null = null
 
 export const useShop = () => {
   const authStore = useAuthStore()
 
   const fetchShop = async (force = false) => {
+    const shopId = authStore.user?.shop_id
+    const userId = authStore.user?.id
+    
+    // Clear shop data if user has changed
+    if (currentUserId && currentUserId !== userId) {
+      shop.value = null
+      error.value = null
+      fetchPromise = null
+    }
+    
+    // Update current user ID
+    currentUserId = userId || null
+    
     // If already have shop data and not forcing refresh, return it
     if (shop.value && !force) {
       return shop.value
@@ -22,8 +36,6 @@ export const useShop = () => {
     if (fetchPromise && !force) {
       return fetchPromise
     }
-
-    const shopId = authStore.user?.shop_id
     
     if (!shopId) {
       error.value = 'Shop ID tidak ditemukan'
@@ -65,6 +77,7 @@ export const useShop = () => {
     shop.value = null
     error.value = null
     fetchPromise = null
+    currentUserId = null
   }
 
   // Computed properties for easy access

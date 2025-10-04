@@ -546,6 +546,7 @@ onMounted(async () => {
     return
   }
   
-  await fetchShop()
+  // Force refresh to ensure we get the correct user's shop data
+  await fetchShop(true)
 })
 </script>

@@ -86,7 +86,7 @@
                       for="shopName"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Shop Name<span class="text-error-500">*</span>
+                      Shop Name<span class="text-error-500"> *</span>
                     </label>
                     <input
                       v-model="shopName"
@@ -104,7 +104,7 @@
                       for="shopEmail"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Shop Email<span class="text-error-500">*</span>
+                      Shop Email<span class="text-error-500"> *</span>
                     </label>
                     <input
                       v-model="shopEmail"
@@ -122,7 +122,7 @@
                       for="shopType"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Shop Type<span class="text-error-500">*</span>
+                      Shop Type<span class="text-error-500"> *</span>
                     </label>
                     <select
                       v-model="shopType"
@@ -141,7 +141,7 @@
                       for="province"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Province<span class="text-error-500">*</span>
+                      Province<span class="text-error-500"> *</span>
                     </label>
                     <select
                       v-model="selectedProvinceId"
@@ -167,7 +167,7 @@
                       for="city"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      City<span class="text-error-500">*</span>
+                      City<span class="text-error-500"> *</span>
                     </label>
                     <select
                       v-model="selectedCityId"
@@ -196,7 +196,7 @@
                       for="shopAddress"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Address<span class="text-error-500">*</span>
+                      Address<span class="text-error-500"> *</span>
                     </label>
                     <textarea
                       v-model="shopAddress"
@@ -214,7 +214,7 @@
                       for="shopPhone"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Shop Phone<span class="text-error-500">*</span>
+                      Shop Phone<span class="text-error-500"> *</span>
                     </label>
                     <input
                       v-model="shopPhone"
