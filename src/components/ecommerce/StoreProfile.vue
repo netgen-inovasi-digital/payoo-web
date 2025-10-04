@@ -3,7 +3,7 @@
     class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 pb-7 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6"
   >
     <!-- Loading State -->
-    <div v-if="loading && !shop.name" class="flex items-center justify-center py-12">
+    <div v-if="loading && !shop?.name" class="flex items-center justify-center py-12">
       <div class="flex items-center gap-3">
         <svg class="h-6 w-6 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -19,7 +19,7 @@
         class="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-100 shadow-sm"
       >
         <img
-          :src="shop.photo"
+          :src="shop?.photo"
           alt="Foto Toko"
           class="h-full w-full object-cover object-center"
         />
@@ -30,7 +30,7 @@
         <div class="flex items-start justify-between">
           <div class="space-y-2">
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">
-              {{ shop.name }}
+              {{ shop?.name }}
             </h2>
             <span
               class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600"
@@ -91,7 +91,7 @@
             <div>
               <p class="text-sm text-gray-500">Alamat</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ `${shop.address}, ${shop.city}, ${shop.province}` }}
+                {{ shop ? `${shop.address}, ${shop.city}, ${shop.province}` : '' }}
               </p>
             </div>
           </div>
@@ -119,7 +119,7 @@
             <div>
               <p class="text-sm text-gray-500">Email</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ shop.email }}
+                {{ shop?.email }}
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@
             <div>
               <p class="text-sm text-gray-500">Telepon</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ shop.phone }}
+                {{ shop?.phone }}
               </p>
             </div>
           </div>
@@ -174,7 +174,7 @@
               accept="image/*"
               @change="handleImageUpload"
               class="mt-1 w-full rounded-lg border border-gray-300 p-2"
-              :disabled="loading || imageUpload.isUploading.value"
+              :disabled="savingShop || imageUpload.isUploading.value"
             />
             <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
               Mengupload...
@@ -298,10 +298,10 @@
             </button>
             <button
               type="submit"
-              :disabled="loading || imageUpload.isUploading.value"
+              :disabled="savingShop || imageUpload.isUploading.value"
               class="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span v-if="loading">Menyimpan...</span>
+              <span v-if="savingShop">Menyimpan...</span>
               <span v-else>Simpan</span>
             </button>
           </div>
@@ -315,10 +315,11 @@
 import { ref, onMounted, watch } from "vue"
 import { shopService } from '@/api/services/shop.service'
 import { locationService } from '@/api/services/location.service'
-import type { Shop, ShopUpdatePayload } from '@/api/types/shop.types'
+import type { ShopUpdatePayload } from '@/api/types/shop.types'
 import type { Province, City } from '@/api/types/location.types'
 import { useImageUpload } from '@/composables/useImageUpload'
 import { useAlert } from '@/composables/useAlert'
+import { useShop } from '@/composables/useShop'
 import { useAuthStore } from '@/stores/auth.store'
 // import { useFormatters } from '@/composables/useFormatters'
 
@@ -326,34 +327,19 @@ import { useAuthStore } from '@/stores/auth.store'
 const alert = useAlert()
 const imageUpload = useImageUpload()
 const authStore = useAuthStore()
+const { shop, loading, fetchShop, updateShop } = useShop()
 // const { formatShopType } = useFormatters()
 
 // State
-const loading = ref(false)
 const isModalOpen = ref(false)
 const loadingProvinces = ref(false)
 const loadingCities = ref(false)
+const savingShop = ref(false)
 
 // Location data
 const provinces = ref<Province[]>([])
 const cities = ref<City[]>([])
 const selectedProvinceId = ref<string>('')
-
-// Shop data - will be populated from API
-const shop = ref<Shop>({
-  id: 0,
-  user_id: 0,
-  name: "",
-  email: "",
-  address: "",
-  type: "mandiri",
-  province: "",
-  city: "",
-  phone: "",
-  photo: "",
-  created_at: "",
-  updated_at: ""
-})
 
 // Form edit
 const form = ref<ShopUpdatePayload>({
@@ -378,27 +364,6 @@ const shopTypeOptions = [
 ]
 
 // API Functions
-const fetchShop = async () => {
-  const shopId = authStore.user?.shop_id
-  
-  if (!shopId) {
-    alert.error('Error!', 'Shop ID tidak ditemukan. Silakan login ulang.')
-    return
-  }
-  
-  try {
-    loading.value = true
-    const response = await shopService.getShop(shopId)
-    if (response.status === 'success') {
-      shop.value = response.data
-    }
-  } catch (error) {
-    console.error('Failed to fetch shop:', error)
-    alert.error('Gagal!', 'Terjadi kesalahan saat mengambil data toko.')
-  } finally {
-    loading.value = false
-  }
-}
 
 // Fetch provinces from location API
 const fetchProvinces = async () => {
@@ -469,6 +434,11 @@ watch(formCityId, (newCityId) => {
 
 // Methods
 async function openModal() {
+  if (!shop.value) {
+    alert.error('Error!', 'Data toko belum tersedia.')
+    return
+  }
+  
   // Reset form dengan data shop terbaru
   form.value = {
     name: shop.value.name,
@@ -485,7 +455,7 @@ async function openModal() {
   await fetchProvinces()
   
   // Find and set selected province ID
-  const currentProvince = provinces.value.find(p => p.text === shop.value.province)
+  const currentProvince = provinces.value.find(p => p.text === shop.value?.province)
   if (currentProvince) {
     formProvinceId.value = currentProvince.id
     selectedProvinceId.value = currentProvince.id
@@ -493,7 +463,7 @@ async function openModal() {
     await fetchCities(currentProvince.id)
     
     // Find and set selected city ID
-    const currentCity = cities.value.find(c => c.text === shop.value.city)
+    const currentCity = cities.value.find(c => c.text === shop.value?.city)
     if (currentCity) {
       formCityId.value = currentCity.id
     }
@@ -523,7 +493,7 @@ async function saveChanges() {
   if (!confirmed) return
 
   try {
-    loading.value = true
+    savingShop.value = true
 
     // Step 1: Upload image if a new file is selected
     if (imageUpload.selectedFile.value) {
@@ -549,7 +519,7 @@ async function saveChanges() {
     const response = await shopService.updateShop(shopId, form.value)
     
     if (response.status === 'success') {
-      shop.value = response.data
+      updateShop(response.data)
       closeModal()
       alert.success('Berhasil!', 'Profil toko berhasil diupdate.')
     }
@@ -557,7 +527,7 @@ async function saveChanges() {
     console.error('Failed to save shop:', error)
     alert.error('Gagal!', 'Terjadi kesalahan saat menyimpan profil toko.')
   } finally {
-    loading.value = false
+    savingShop.value = false
   }
 }
 

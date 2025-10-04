@@ -192,14 +192,14 @@ const menuGroups: MenuGroup[] = [
         path: '/order'
       },
       {
-        icon: faBoxesPacking,
-        name: "Produk",
-        path: '/produk'
-      },
-      {
         icon: faUtensils,
         name: "Komposisi",
         path: '/komposisi'
+      },
+      {
+        icon: faBoxesPacking,
+        name: "Produk",
+        path: '/produk'
       },
       {
         icon: faTruck,
