@@ -1,24 +1,26 @@
 <template>
     <AdminLayout>
-      <div class="container mx-auto p-6">
+      <div class="container mx-auto p-4 sm:p-6">
         <!-- Header Section -->
         <div class="mb-6">
           <h1 class="text-2xl font-semibold mb-4">Manajemen Komposisi</h1>
           
           <!-- Search, Total & Tambah Komposisi -->
-          <div class="flex items-center gap-4 mb-4">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-4">
             <!-- Search -->
-            <input v-model="searchQuery" type="text" placeholder="Cari Komposisi"
-              class="flex-1 px-4 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+            <div class="flex-1">
+              <input v-model="searchQuery" type="text" placeholder="Cari Komposisi"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+            </div>
 
             <!-- Total Komposisi -->
-            <div class="text-gray-600 whitespace-nowrap">
-              <span>Total Komposisi: {{ filteredCompositions.length }}</span>
+            <div class="text-gray-600 whitespace-nowrap order-last sm:order-none">
+              <span>Total: {{ filteredCompositions.length }}</span>
             </div>
 
             <!-- Tambah Komposisi -->
             <button @click="openAddCompositionModal"
-              class="ml-auto px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
+              class="w-full sm:w-auto px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
               Tambah Komposisi
             </button>
           </div>
@@ -26,10 +28,11 @@
 
         <!-- Komposisi Section -->
         <!-- Komposisi Table -->
-        <div class="bg-white rounded-lg shadow overflow-x-auto">
-          <table class="min-w-full">
+        <div class="bg-white rounded-lg shadow overflow-x-auto -mx-4 sm:mx-0">
+          <div class="min-w-[800px]">
+          <table class="w-full">
             <thead>
-              <tr class="bg-gray-50">
+              <tr class="bg-gray-50 whitespace-nowrap">
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">No</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nama Komposisi</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Modal</th>
@@ -82,11 +85,12 @@
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
 
         <!-- Add/Edit Composition Modal -->
-        <div v-if="showCompositionModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
-          <div class="bg-white rounded-lg w-full max-w-lg p-6">
+        <div v-if="showCompositionModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+          <div class="bg-white rounded-lg w-full max-w-lg mx-3 sm:mx-0 p-4 sm:p-6 my-4">
             <h3 class="text-xl font-semibold mb-4">
               {{ editingComposition ? 'Edit Komposisi' : 'Tambah Komposisi Baru' }}
             </h3>
@@ -127,12 +131,12 @@
                 </select>
               </div>
 
-              <div class="flex justify-end gap-3 pt-4">
-                <button type="button" @click="showCompositionModal = false" class="px-4 py-2 border rounded-lg">
+              <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+                <button type="button" @click="showCompositionModal = false" class="w-full sm:w-auto px-4 py-2 border rounded-lg">
                   Batal
                 </button>
                 <button type="submit" :disabled="loading"
-                  class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
                   <span v-if="loading">Menyimpan...</span>
                   <span v-else>{{ editingComposition ? 'Simpan Perubahan' : 'Tambah Komposisi' }}</span>
                 </button>

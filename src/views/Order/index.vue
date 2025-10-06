@@ -1,17 +1,17 @@
 <template>
   <AdminLayout>
-    <div class="container mx-auto p-6">
-      <div class="grid grid-cols-12 gap-6">
+    <div class="container mx-auto p-4 sm:p-6 mb-[calc(100vh-220px)] lg:mb-0">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         <!-- Left side - Orders and Products -->
-        <div class="col-span-8">
+        <div class="col-span-1 lg:col-span-8">
 
           <!-- Category and Products -->
           <div>
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
               <h2 class="text-2xl font-semibold">Produk</h2>
-              <div class="flex gap-2">
+              <div class="flex gap-2 overflow-x-auto pb-2 w-full sm:w-auto -mx-4 px-4 sm:mx-0 sm:px-0">
                 <button @click="clearCategoryFilter" :class="[
-                  'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-gray-50',
+                  'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-gray-50 whitespace-nowrap',
                   selectedCategory === null
                     ? 'border-brand-500 bg-brand-50 text-brand-700'
                     : 'border-gray-300 text-gray-600'
@@ -19,7 +19,7 @@
                   Semua Kategori
                 </button>
                 <button v-for="category in categories" :key="category.id" @click="filterByCategory(category.id)" :class="[
-                  'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-brand-50',
+                  'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-brand-50 whitespace-nowrap',
                   selectedCategory === category.id
                     ? 'border-brand-500 bg-brand-50 text-brand-700'
                     : 'border-brand-500 text-brand-600'
@@ -30,19 +30,19 @@
             </div>
 
             <!-- Products Grid -->
-            <div class="grid grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-[70vh] lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
               <div v-for="product in filteredProducts" :key="product.id"
-                class="bg-white rounded-lg p-4 shadow relative">
+                class="bg-white rounded-lg p-3 sm:p-4 shadow relative">
                 <button @click="addToCart(product)"
-                  class="absolute top-4 right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center">
+                  class="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg">
                   <span class="text-xl">+</span>
                 </button>
 
-                <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-40 object-cover rounded-lg mb-3">
-                <h3 class="font-medium mb-2">{{ product.name }}</h3>
+                <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-28 sm:h-40 object-cover rounded-lg mb-2 sm:mb-3">
+                <h3 class="font-medium mb-1 sm:mb-2 text-sm sm:text-base line-clamp-2">{{ product.name }}</h3>
                 <div class="flex justify-between items-center">
-                  <span class="text-emerald-500 font-medium">{{ formatCurrency(product.selling_price) }}</span>
-                  <span class="text-gray-500 text-sm">/ Pcs</span>
+                  <span class="text-emerald-500 font-medium text-sm sm:text-base">{{ formatCurrency(product.selling_price) }}</span>
+                  <span class="text-gray-500 text-xs sm:text-sm">/ Pcs</span>
                 </div>
               </div>
             </div>
@@ -52,8 +52,8 @@
         </div>
 
         <!-- Right side - Cart -->
-        <div class="col-span-4">
-          <div class="bg-white rounded-lg p-6 shadow sticky top-6">
+        <div class="col-span-1 lg:col-span-4 fixed lg:relative bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-auto z-50 lg:z-auto">
+          <div class="bg-white rounded-none lg:rounded-lg p-4 sm:p-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow lg:sticky lg:top-6">
             <h2 class="text-xl font-semibold mb-4">Your Order</h2>
 
             <!-- Cart Items -->
@@ -71,26 +71,28 @@
               </div>
 
               <!-- Cart Items List -->
-              <div v-else v-for="item in cartItems" :key="item.product.id" class="flex items-center gap-4">
-                <img :src="item.product.photo || '/images/product/default.jpg'" :alt="item.product.name"
-                  class="w-16 h-16 object-cover rounded-lg">
-                <div class="flex-1">
-                  <h4 class="font-medium">{{ item.product.name }}</h4>
-                  <div class="flex justify-between items-center">
-                    <span>{{ formatCurrency(item.product.selling_price) }}</span>
-                    <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm">
-                      Hapus
-                    </button>
+              <div v-else v-for="item in cartItems" :key="item.product.id" class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 border rounded-lg">
+                <div class="flex gap-3 w-full">
+                  <img :src="item.product.photo || '/images/product/default.jpg'" :alt="item.product.name"
+                    class="w-16 h-16 object-cover rounded-lg">
+                  <div class="flex-1">
+                    <h4 class="font-medium">{{ item.product.name }}</h4>
+                    <div class="flex justify-between items-center mt-1">
+                      <span class="text-emerald-600 font-medium">{{ formatCurrency(item.product.selling_price) }}</span>
+                      <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm">
+                        Hapus
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0 justify-end">
                   <button @click="updateQuantity(item.product.id, false)"
-                    class="w-6 h-6 rounded-full border flex items-center justify-center">
+                    class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50">
                     -
                   </button>
-                  <span>{{ item.quantity }}</span>
+                  <span class="w-12 text-center">{{ item.quantity }}</span>
                   <button @click="updateQuantity(item.product.id, true)"
-                    class="w-6 h-6 rounded-full border flex items-center justify-center">
+                    class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50">
                     +
                   </button>
                 </div>
@@ -151,8 +153,8 @@
     </div>
 
     <!-- Success Modal -->
-    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg w-full max-w-sm p-6 text-center">
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+      <div class="bg-white rounded-lg w-full max-w-sm p-4 sm:p-6 text-center mx-4 sm:mx-0">
         <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

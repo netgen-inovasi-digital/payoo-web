@@ -4,22 +4,19 @@
       <h2 class="text-2xl font-semibold mb-4">Laporan</h2>
 
       <!-- Header -->
-      <div class="flex items-center gap-4 mb-6">
-        <div class="flex-1">
+      <div class="flex flex-wrap lg:flex-nowrap items-center gap-4 mb-6">
+        <div class="w-full lg:w-96">
           <input v-model="searchQuery" type="text" placeholder="Cari riwayat transaksi"
             class="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" />
         </div>
 
-        <div class="text-gray-600 whitespace-nowrap">
+        <div class="text-gray-600 whitespace-nowrap order-last lg:order-none">
           Total Transaksi: {{ filteredTransactions.length }}
         </div>
 
         <div class="flex gap-2 ml-auto">
-          <select 
-            v-model="filterForm.period" 
-            @change="fetchReports"
-            class="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
-          >
+          <select v-model="filterForm.period" @change="fetchReports"
+            class="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
             <option value="today">Hari Ini</option>
             <option value="this_week">Minggu Ini</option>
             <option value="this_month">Bulan Ini</option>
@@ -30,9 +27,11 @@
       <!-- Period Info -->
       <div v-if="reportData" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p class="text-sm text-blue-800">
-          <strong>Periode:</strong> {{ reportData.period === 'today' ? 'Hari Ini' : reportData.period === 'this_week' ? 'Minggu Ini' : 'Bulan Ini' }}
+          <strong>Periode:</strong> {{ reportData.period === 'today' ? 'Hari Ini' : reportData.period === 'this_week' ?
+            'Minggu Ini' : 'Bulan Ini' }}
           <span class="ml-4">
-            <strong>Range:</strong> {{ formatDate(reportData.date_range.start) }} - {{ formatDate(reportData.date_range.end) }}
+            <strong>Range:</strong> {{ formatDate(reportData.date_range.start) }} - {{
+              formatDate(reportData.date_range.end) }}
           </span>
           <span class="ml-4">
             <strong>Total Orders:</strong> {{ reportData.total_orders }}
@@ -58,8 +57,10 @@
               <td colspan="7" class="px-6 py-8 text-gray-500">
                 <div class="flex justify-center items-center">
                   <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                      fill="none" />
+                    <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   Loading...
                 </div>
@@ -74,14 +75,13 @@
               <td class="px-6 py-4 text-sm text-gray-500">{{ transaction.id }}</td>
               <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.date }}</td>
               <td class="px-6 py-4 text-sm text-gray-900">
-                <span class="px-2 py-1 text-xs rounded-full"
-                  :class="{
-                    'bg-green-100 text-green-800': transaction.payment_method === 'cash',
-                    'bg-blue-100 text-blue-800': transaction.payment_method === 'gopay',
-                    'bg-purple-100 text-purple-800': transaction.payment_method === 'ovo',
-                    'bg-yellow-100 text-yellow-800': transaction.payment_method === 'dana',
-                    'bg-gray-100 text-gray-800': transaction.payment_method === 'qris'
-                  }">
+                <span class="px-2 py-1 text-xs rounded-full" :class="{
+                  'bg-green-100 text-green-800': transaction.payment_method === 'cash',
+                  'bg-blue-100 text-blue-800': transaction.payment_method === 'gopay',
+                  'bg-purple-100 text-purple-800': transaction.payment_method === 'ovo',
+                  'bg-yellow-100 text-yellow-800': transaction.payment_method === 'dana',
+                  'bg-gray-100 text-gray-800': transaction.payment_method === 'qris'
+                }">
                   {{ formatPaymentMethod(transaction.payment_method) }}
                 </span>
               </td>
@@ -120,7 +120,8 @@
               <p class="mb-0"><strong>Tanggal:</strong> {{ selectedTransaction.date }}</p>
             </div>
             <div>
-              <p class="mb-2"><strong>Metode Bayar:</strong> {{ formatPaymentMethod(selectedTransaction.payment_method) }}</p>
+              <p class="mb-2"><strong>Metode Bayar:</strong> {{ formatPaymentMethod(selectedTransaction.payment_method)
+                }}</p>
               <p class="mb-0"><strong>Total Item:</strong> {{ selectedTransaction.items }}</p>
             </div>
           </div>
@@ -174,7 +175,7 @@
               <span>{{ formatCurrency(selectedOrder.change_money || 0) }}</span>
             </div>
           </div>
-          
+
           <!-- Fallback total if no detailed order -->
           <div v-else class="border-t pt-4">
             <p class="text-lg font-medium text-right">
@@ -243,7 +244,7 @@ const filterForm = ref({
 // Transactions data - computed from API response
 const transactions = computed<Transaction[]>(() => {
   if (!reportData.value?.orders) return []
-  
+
   return reportData.value.orders.map(order => ({
     id: order.id,
     date: formatDate(order.created_at),
@@ -280,7 +281,7 @@ const fetchReports = async () => {
     loading.value = true
     const shopId = '1' // Hardcode for now, should get from auth/store
     const response = await reportService.getReports(shopId, filterForm.value.period)
-    
+
     if (response.status === 'success') {
       reportData.value = response.data
     }
@@ -295,17 +296,17 @@ const viewDetail = async (transactionId: string) => {
   try {
     loadingDetail.value = true
     const trx = transactions.value.find(t => t.id === transactionId)
-    
+
     if (trx) {
       selectedTransaction.value = trx
-      
+
       // Fetch detailed order data from API
       const response = await orderService.getOrder(parseInt(transactionId))
-      
+
       if (response.status === 'success') {
         selectedOrder.value = response.data
       }
-      
+
       showDetailModal.value = true
     }
   } catch (error) {

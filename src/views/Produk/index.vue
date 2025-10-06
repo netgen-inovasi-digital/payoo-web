@@ -1,11 +1,11 @@
 <template>
     <AdminLayout>
       <!-- <PageBreadcrumb pageTitle="Product Management" /> -->
-      <div class="container mx-auto p-6">
+      <div class="container mx-auto p-4 sm:p-6">
         <!-- Kategori Section -->
         <div class="mb-6">
           <h2 class="text-2xl font-semibold mb-4">Kategori</h2>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-nowrap overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap gap-2 pb-2">
             <button @click="clearCategoryFilter" :class="[
               'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-gray-50',
               selectedCategoryId === null
@@ -39,18 +39,20 @@
             <h2 class="text-2xl font-semibold mb-4">Produk</h2>
 
             <!-- Search, Total & Tambah Produk -->
-            <div class="flex items-center gap-4 mb-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-4">
               <!-- Search -->
-              <input v-model="searchQuery" type="text" placeholder="Cari Produk"
-                class="flex-1 px-4 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+              <div class="flex-1">
+                <input v-model="searchQuery" type="text" placeholder="Cari Produk"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+              </div>
 
               <!-- Total Produk -->
-              <div class="text-gray-600 whitespace-nowrap">
+              <div class="text-gray-600 whitespace-nowrap order-last sm:order-none">
                 <span v-if="selectedCategoryId">
                   {{ getCategoryName(selectedCategoryId) }}: {{ filteredProducts.length }}
                 </span>
                 <span v-else>
-                  Total Produk: {{ filteredProducts.length }}
+                  Total: {{ filteredProducts.length }}
                 </span>
                 <span v-if="searchQuery" class="text-sm text-gray-500 ml-1">
                   (filtered)
@@ -59,7 +61,7 @@
 
               <!-- Tambah Produk -->
               <button @click="openAddProductModal"
-                class="ml-auto px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
+                class="w-full sm:w-auto px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
                 Tambah Produk
               </button>
             </div>
@@ -70,8 +72,9 @@
 
 
           <!-- Products Table -->
-          <div class="bg-white rounded-lg shadow overflow-x-auto">
-            <table class="min-w-full">
+          <div class="bg-white rounded-lg shadow overflow-x-auto -mx-4 sm:mx-0">
+            <div class="min-w-[800px]">
+            <table class="w-full">
               <thead>
                 <tr class="bg-gray-50">
                   <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">No</th>
@@ -131,13 +134,14 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
         </div>
 
         <!-- Add/Edit Product Modal -->
-        <div v-if="showProductModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
-          <div class="bg-white rounded-lg w-full max-w-lg p-6">
+        <div v-if="showProductModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+          <div class="bg-white rounded-lg w-full max-w-lg mx-3 sm:mx-0 p-4 sm:p-6 my-4">
             <h3 class="text-xl font-semibold mb-4">
               {{ editingProduct ? 'Edit Product' : 'Add New Product' }}
             </h3>
@@ -210,12 +214,12 @@
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
-              <div class="flex justify-end gap-3 pt-4">
-                <button type="button" @click="showProductModal = false" class="px-4 py-2 border rounded-lg">
+              <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+                <button type="button" @click="showProductModal = false" class="w-full sm:w-auto px-4 py-2 border rounded-lg">
                   Cancel
                 </button>
                 <button type="submit" :disabled="loading || imageUpload.isUploading.value"
-                  class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
                   <span v-if="imageUpload.isUploading.value">Mengupload...</span>
                   <span v-else-if="loading">Menyimpan...</span>
                   <span v-else>{{ editingProduct ? 'Simpan Perubahan' : 'Tambah Produk' }}</span>
@@ -226,16 +230,16 @@
         </div>
 
         <!-- Category Management Modal -->
-        <div v-if="showCategoryModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
-          <div class="bg-white rounded-lg w-full max-w-md p-6">
+        <div v-if="showCategoryModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+          <div class="bg-white rounded-lg w-full max-w-md mx-3 sm:mx-0 p-4 sm:p-6 my-4">
             <h3 class="text-xl font-semibold mb-4">Manage Categories</h3>
 
             <!-- Add Category Form -->
             <form @submit.prevent="addCategory" class="mb-6">
-              <div class="flex gap-2">
+              <div class="flex flex-col sm:flex-row gap-2">
                 <input v-model="newCategory" type="text" placeholder="Nama kategori baru" required
                   class="flex-1 px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
-                <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700">
+                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700">
                   Tambah
                 </button>
               </div>

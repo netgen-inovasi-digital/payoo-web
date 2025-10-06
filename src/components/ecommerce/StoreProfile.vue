@@ -13,10 +13,10 @@
       </div>
     </div>
 
-    <div v-else class="flex items-start gap-6">
+    <div v-else class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
       <!-- Store Image -->
       <div
-        class="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-gray-100 shadow-sm"
+        class="relative h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-gray-100 shadow-sm"
       >
         <img
           :src="shop?.photo || 'https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"
@@ -27,9 +27,9 @@
       </div>
 
       <!-- Store Info -->
-      <div class="flex-1">
-        <div class="flex items-start justify-between">
-          <div class="space-y-2">
+      <div class="flex-1 w-full text-center sm:text-left">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-0">
+          <div class="space-y-2 w-full sm:w-auto">
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">
               {{ shop?.name }}
             </h2>
@@ -42,7 +42,7 @@
           </div>
           <button
             @click="openModal"
-            class="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
           >
             <span>Edit Toko</span>
             <svg
@@ -63,7 +63,7 @@
         </div>
 
         <!-- Store Details -->
-        <div class="mt-6 flex flex-wrap gap-6">
+        <div class="mt-6 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start gap-4 sm:gap-6">
           <!-- Alamat -->
           <div class="flex items-center gap-3">
             <div
@@ -90,8 +90,8 @@
               </svg>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Alamat</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <p class="text-sm text-gray-500 text-center sm:text-left">Alamat</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left break-words">
                 {{ shop ? `${shop.address}, ${shop.city}, ${shop.province}` : '' }}
               </p>
             </div>
@@ -162,7 +162,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
       <div
-        class="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900"
+        class="w-full max-w-lg mx-3 sm:mx-0 rounded-xl bg-white p-4 sm:p-6 shadow-lg dark:bg-gray-900 my-4"
       >
         <h3 class="mb-4 text-lg font-semibold">Edit Toko</h3>
 
@@ -290,18 +290,18 @@
           </div>
 
           <!-- Actions -->
-          <div class="flex justify-end gap-3 pt-4">
+          <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
             <button
               type="button"
               @click="closeModal"
-              class="rounded-lg border px-4 py-2 text-sm"
+              class="w-full sm:w-auto rounded-lg border px-4 py-2 text-sm"
             >
               Batal
             </button>
             <button
               type="submit"
               :disabled="savingShop || imageUpload.isUploading.value"
-              class="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full sm:w-auto rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span v-if="savingShop">Menyimpan...</span>
               <span v-else>Simpan</span>
