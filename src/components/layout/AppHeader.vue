@@ -74,8 +74,6 @@
         class="items-center justify-between w-full gap-4 px-5 py-4 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none"
       >
         <div class="flex items-center gap-2 2xsm:gap-3" style="display: none">
-          <!-- <ThemeToggler /> -->
-          <NotificationMenu />
         </div>
         <UserMenu />
       </div>
@@ -86,10 +84,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
-import ThemeToggler from '../common/ThemeToggler.vue'
-import SearchBar from './header/SearchBar.vue'
+
 import HeaderLogo from './header/HeaderLogo.vue'
-import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
@@ -102,13 +98,13 @@ const handleToggle = () => {
   }
 }
 
-const dropdownOpen = ref(false)
-const notifying = ref(false)
+// const dropdownOpen = ref(false)
+// const notifying = ref(false)
 
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value
-  notifying.value = false
-}
+// const toggleDropdown = () => {
+//   dropdownOpen.value = !dropdownOpen.value
+//   notifying.value = false
+// }
 
 const isApplicationMenuOpen = ref(false)
 
