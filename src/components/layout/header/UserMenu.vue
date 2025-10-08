@@ -16,7 +16,7 @@
     <!-- Dropdown Start -->
     <div
       v-if="dropdownOpen"
-      class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+      class="absolute left-1/2 transform -translate-x-1/4 sm:left-auto sm:right-0 sm:transform-none sm:translate-x-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
     >
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
@@ -62,8 +62,8 @@
     <!-- Dropdown End -->
 
     <!-- Profile Edit Modal -->
-    <div v-if="isProfileModalOpen" class="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
-      <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900">
+    <div v-if="isProfileModalOpen" class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4">
+      <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-4 sm:p-6 shadow-lg dark:bg-gray-900">
         <h3 class="mb-4 text-lg font-semibold">Edit Profil</h3>
         <form @submit.prevent="saveProfile" class="space-y-4">
           <!-- Upload Foto -->
@@ -147,7 +147,6 @@ import { UserCircleIcon, ChevronDownIcon, LogoutIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
-import { SettingsIcon } from 'lucide-vue-next'
 import { profileService } from '@/api/services/profile.service'
 import { useImageUpload } from '@/composables/useImageUpload'
 import { useAlert } from '@/composables/useAlert'

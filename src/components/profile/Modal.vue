@@ -9,6 +9,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+defineOptions({
+  name: 'ProfileModal',
+})
 // No additional setup needed
 </script>

@@ -1,10 +1,9 @@
 <template>
   <router-link to="/" class="lg:hidden">
-    <img class="dark:hidden" src="/images/logo/Logo Payoo.png" alt="Logo" />
-    <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+    <img class="dark:hidden w-auto h-10 max-w-full sm:h-10 md:h-12" src="/images/logo/Logo Payoo.png" alt="Logo" />
   </router-link>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { RouterLink } from 'vue-router'
 </script>

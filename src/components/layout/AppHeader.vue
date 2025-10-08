@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b"
+    class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 md:z-9 dark:border-gray-800 dark:bg-gray-900 lg:border-b"
   >
     <div class="flex flex-col w-full items-center justify-between grow sm:px-4 lg:flex-row lg:px-6">
       <div

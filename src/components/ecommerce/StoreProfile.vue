@@ -159,10 +159,10 @@
     <!-- Modal Edit -->
     <div
       v-if="isModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
     >
       <div
-        class="w-full max-w-lg mx-3 sm:mx-0 rounded-xl bg-white p-4 sm:p-6 shadow-lg dark:bg-gray-900 my-4"
+        class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-4 sm:p-6 shadow-lg dark:bg-gray-900"
       >
         <h3 class="mb-4 text-lg font-semibold">Edit Toko</h3>
 
