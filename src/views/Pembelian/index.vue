@@ -16,7 +16,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Cari produk atau catatan..."
+              placeholder="Cari produk..."
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
             />
           </div>
@@ -87,7 +87,7 @@
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-900">Riwayat Pembelian</h3>
             <span class="text-sm text-gray-600">
-              Total: {{ filteredStocks.length }} data
+              Menampilkan {{ paginationInfo.from }}-{{ paginationInfo.to }} dari {{ paginationInfo.total }} data
             </span>
           </div>
         </div>
@@ -131,14 +131,14 @@
                   </div>
                 </td>
               </tr>
-              <tr v-else-if="filteredStocks.length === 0" class="text-center">
+              <tr v-else-if="stocks.length === 0" class="text-center">
                 <td colspan="7" class="px-6 py-8 text-gray-500">
                   {{ searchQuery ? 'Tidak ada pembelian yang sesuai dengan pencarian' : 'Tidak ada data pembelian produk' }}
                 </td>
               </tr>
-              <tr v-else v-for="stock in filteredStocks" :key="stock.id" class="hover:bg-gray-50">
+              <tr v-else v-for="(stock, index) in stocks" :key="stock.id" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ filteredStocks.indexOf(stock) + 1 }}
+                  {{ (currentPage - 1) * perPage + index + 1 }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900">{{ stock.product_name }}</div>
@@ -164,6 +164,149 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-4 py-3 bg-gray-50 border-t">
+          <!-- Desktop View -->
+          <div class="hidden md:flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <select
+                v-model="perPage"
+                @change="handlePerPageChange"
+                class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              >
+                <option value="10">10 per halaman</option>
+                <option value="20">20 per halaman</option>
+                <option value="50">50 per halaman</option>
+                <option value="100">100 per halaman</option>
+              </select>
+              
+              <span class="text-sm text-gray-600">
+                Halaman {{ currentPage }} dari {{ totalPages }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                :disabled="currentPage <= 1 || totalPages === 0"
+                @click="handlePageChange(1)"
+                class="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ««
+              </button>
+              <button
+                :disabled="currentPage <= 1 || totalPages === 0"
+                @click="handlePageChange(currentPage - 1)"
+                class="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                « Prev
+              </button>
+
+              <template v-for="page in visiblePages" :key="page">
+                <button
+                  v-if="page !== '...'"
+                  :class="[
+                    'px-3 py-1 text-sm border rounded',
+                    page === currentPage 
+                      ? 'bg-brand-600 text-white border-brand-600' 
+                      : 'hover:bg-gray-100'
+                  ]"
+                  @click="handlePageChange(page as number)"
+                  :disabled="totalPages === 0"
+                >
+                  {{ page }}
+                </button>
+                <span v-else class="px-2 text-gray-500">...</span>
+              </template>
+
+              <button
+                :disabled="currentPage >= totalPages || totalPages === 0"
+                @click="handlePageChange(currentPage + 1)"
+                class="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next »
+              </button>
+              <button
+                :disabled="currentPage >= totalPages || totalPages === 0"
+                @click="handlePageChange(totalPages || 1)"
+                class="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                »»
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile View -->
+          <div class="md:hidden space-y-3">
+            <!-- Page Info and Per Page -->
+            <div class="flex items-center justify-between">
+              <select
+                v-model="perPage"
+                @change="handlePerPageChange"
+                class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+              >
+                <option value="10">10 per halaman</option>
+                <option value="20">20 per halaman</option>
+                <option value="50">50 per halaman</option>
+                <option value="100">100 per halaman</option>
+              </select>
+              
+              <span class="text-sm text-gray-600">
+                {{ currentPage }}/{{ totalPages }}
+              </span>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex items-center justify-center gap-1">
+              <button
+                :disabled="currentPage <= 1 || totalPages === 0"
+                @click="handlePageChange(1)"
+                class="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ««
+              </button>
+              <button
+                :disabled="currentPage <= 1 || totalPages === 0"
+                @click="handlePageChange(currentPage - 1)"
+                class="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ‹
+              </button>
+
+              <!-- Mobile page numbers (simplified) -->
+              <template v-for="page in Math.min(totalPages || 1, 5)" :key="page">
+                <button
+                  v-if="Math.abs(page - currentPage) <= 2 || page === 1 || page === totalPages || totalPages <= 1"
+                  :class="[
+                    'px-2 py-1 text-sm border rounded min-w-[32px]',
+                    page === currentPage 
+                      ? 'bg-brand-600 text-white border-brand-600' 
+                      : 'hover:bg-gray-100'
+                  ]"
+                  @click="handlePageChange(page)"
+                  :disabled="totalPages === 0"
+                >
+                  {{ page }}
+                </button>
+              </template>
+
+              <button
+                :disabled="currentPage >= totalPages || totalPages === 0"
+                @click="handlePageChange(currentPage + 1)"
+                class="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ›
+              </button>
+              <button
+                :disabled="currentPage >= totalPages || totalPages === 0"
+                @click="handlePageChange(totalPages || 1)"
+                class="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                »»
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -269,6 +412,7 @@ import { stockService } from '@/api/services/stock.service'
 import { productService } from '@/api/services/product.service'
 import { useAlert } from '@/composables/useAlert'
 import { useFormatters } from '@/composables/useFormatters'
+import { useDebounce } from '@/composables/useDebounce'
 import type { Stock, StockTransaction } from '@/api/types/stock.types'
 import type { Product } from '@/api/types/product.types'
 
@@ -285,11 +429,22 @@ const stocks = ref<Stock[]>([])
 const products = ref<Product[]>([])
 const loading = ref(false)
 const showStockModal = ref(false)
+
+// Filters
 const searchQuery = ref('')
-const selectedProductId = ref<number | null>(null)
-const selectedProductType = ref<string | null>(null)
+const selectedProductId = ref<number | null | ''>('')
+const selectedProductType = ref<string | null | ''>('')
 const dateFrom = ref('')
 const dateTo = ref('')
+
+// Debounced search
+const { debouncedValue: debouncedSearchQuery } = useDebounce(searchQuery, 500)
+
+// Pagination
+const currentPage = ref(1)
+const perPage = ref(10)
+const totalItems = ref(0)
+const totalPages = ref(0)
 
 // Form
 const stockForm = ref<StockTransaction>({
@@ -302,35 +457,90 @@ const stockForm = ref<StockTransaction>({
 })
 
 // Computed
-const filteredStocks = computed(() => {
-  return stocks.value.filter(stock => {
-    const matchesSearch = !searchQuery.value || 
-      stock.product_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      stock.notes.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesProduct = !selectedProductId.value || stock.product_id === selectedProductId.value
-    const matchesProductType = !selectedProductType.value || stock.product_type === selectedProductType.value
-    
-    const matchesDateFrom = !dateFrom.value || new Date(stock.date) >= new Date(dateFrom.value)
-    const matchesDateTo = !dateTo.value || new Date(stock.date) <= new Date(dateTo.value)
-    
-    return matchesSearch && matchesProduct && matchesProductType && matchesDateFrom && matchesDateTo
-  })
+const paginationInfo = computed(() => {
+  const info = {
+    from: totalItems.value > 0 ? (currentPage.value - 1) * perPage.value + 1 : 0,
+    to: Math.min(currentPage.value * perPage.value, totalItems.value),
+    total: totalItems.value
+  }
+  return info
+})
+
+const visiblePages = computed(() => {
+  const pages: (number | string)[] = []
+  const total = totalPages.value
+  const current = currentPage.value
+  
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (current <= 3) {
+      for (let i = 1; i <= 4; i++) pages.push(i)
+      pages.push('...')
+      pages.push(total)
+    } else if (current >= total - 2) {
+      pages.push(1)
+      pages.push('...')
+      for (let i = total - 3; i <= total; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      pages.push('...')
+      for (let i = current - 1; i <= current + 1; i++) pages.push(i)
+      pages.push('...')
+      pages.push(total)
+    }
+  }
+  return pages
 })
 
 // Methods
 const fetchStocks = async () => {
   try {
     loading.value = true
-    const response = await stockService.getPembelian()
+    
+    const params: Record<string, string | number> = {
+      page: currentPage.value,
+      limit: perPage.value
+    }
+    
+    if (debouncedSearchQuery.value) params.search = debouncedSearchQuery.value
+    if (selectedProductType.value) params.product_type = selectedProductType.value
+    if (selectedProductId.value) params.product_id = selectedProductId.value
+    if (dateFrom.value) params.date_start = dateFrom.value
+    if (dateTo.value) params.date_end = dateTo.value
+        
+    console.log('Fetching pembelian with params:', params)
+    
+    const response = await stockService.getPembelian(params)
+    console.log('Pembelian API response:', response)
+    
     if (response.status === 'success') {
       stocks.value = response.data
+      // Update pagination info from API response
+      if (response.meta?.pagination) {
+        totalItems.value = response.meta.pagination.total
+        totalPages.value = response.meta.pagination.total_pages
+        currentPage.value = response.meta.pagination.current_page
+        perPage.value = response.meta.pagination.per_page
+      }
     }
   } catch (error) {
     console.error('Failed to fetch stocks:', error)
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  fetchStocks()
+}
+
+const handlePerPageChange = () => {
+  currentPage.value = 1
+  fetchStocks()
 }
 
 const fetchProducts = async () => {
@@ -390,10 +600,17 @@ const saveStock = async () => {
 
 
 
-// Watchers
-watch([searchQuery, selectedProductId, selectedProductType, dateFrom, dateTo], () => {
-  // Filter will be reactive automatically through computed
-}, { deep: true })
+// Watch debounced search query for API calls
+watch(debouncedSearchQuery, () => {
+  currentPage.value = 1 // Reset to first page when searching
+  fetchStocks()
+})
+
+// Watchers for other filters (immediate without debounce)
+watch([selectedProductId, selectedProductType, dateFrom, dateTo], () => {
+  currentPage.value = 1
+  fetchStocks()
+})
 
 // Lifecycle
 onMounted(async () => {
