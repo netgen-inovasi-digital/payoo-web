@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.store'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,31 +12,62 @@ const router = createRouter({
       name: 'Ecommerce',
       component: () => import('../views/Ecommerce.vue'),
       meta: {
-        title: 'eCommerce Dashboard',
+        title: 'Dashboard',
+        requiresAuth: true
       },
     },
     {
-      path: '/calendar',
-      name: 'Calendar',
-      component: () => import('../views/Others/Calendar.vue'),
+      path: '/laporan',
+      name: 'Laporan',
+      component: () => import('../views/Riwayat/index.vue'),
       meta: {
-        title: 'Calendar',
+        title: 'Laporan',
+        requiresAuth: true
       },
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: () => import('../views/Others/UserProfile.vue'),
+      path: '/order',
+      name: 'Order',
+      component: () => import('../views/Order/index.vue'),
       meta: {
-        title: 'Profile',
+        title: 'Order',
+        requiresAuth: true
       },
     },
     {
-      path: '/form-elements',
-      name: 'Form Elements',
-      component: () => import('../views/Forms/FormElements.vue'),
+      path: '/produk',
+      name: 'Produk',
+      component: () => import('../views/Produk/index.vue'),
       meta: {
-        title: 'Form Elements',
+        title: 'Produk',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/komposisi',
+      name: 'Komposisi',
+      component: () => import('../views/Komposisi/index.vue'),
+      meta: {
+        title: 'Komposisi',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/pembelian',
+      name: 'Pembelian',
+      component: () => import('../views/Pembelian/index.vue'),
+      meta: {
+        title: 'Pembelian',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/stok',
+      name: 'Stok',
+      component: () => import('../views/Stok/index.vue'),
+      meta: {
+        title: 'Stok',
+        requiresAuth: true
       },
     },
     {
@@ -114,22 +146,13 @@ const router = createRouter({
         title: 'Blank',
       },
     },
-
-    {
-      path: '/error-404',
-      name: '404 Error',
-      component: () => import('../views/Errors/FourZeroFour.vue'),
-      meta: {
-        title: '404 Error',
-      },
-    },
-
     {
       path: '/signin',
       name: 'Signin',
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
         title: 'Signin',
+        requiresGuest: true
       },
     },
     {
@@ -138,6 +161,32 @@ const router = createRouter({
       component: () => import('../views/Auth/Signup.vue'),
       meta: {
         title: 'Signup',
+        requiresGuest: true
+      },
+    },
+    {
+      path: '/signup-shop',
+      name: 'SignupShop',
+      component: () => import('../views/Auth/SignupShop.vue'),
+      meta: {
+        title: 'Create Shop',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/403',
+      name: 'Forbidden',
+      component: () => import('../views/Errors/Forbidden.vue'),
+      meta: {
+        title: 'Access Forbidden'
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: '404 Error',
+      component: () => import('../views/Errors/FourZeroFour.vue'),
+      meta: {
+        title: '404 Error',
       },
     },
   ],
@@ -145,7 +194,26 @@ const router = createRouter({
 
 export default router
 
-router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/signin')
+    return
+  }
+  
+  // Check if route is for guests only
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next('/')
+    return
+  }
+  
+  // Get current user if authenticated but no user data
+  if (authStore.isAuthenticated && !authStore.user) {
+    await authStore.getCurrentUser()
+  }
+  
+  document.title = `PAYOO ${to.meta.title} | Owner Dashboard`
   next()
 })

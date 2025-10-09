@@ -4,9 +4,9 @@
   >
     <div class="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
       <div class="w-full">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Statistics</h3>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Statistik</h3>
         <p class="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-          Target you’ve set for each month
+          {{ note }}
         </p>
       </div>
 
@@ -37,27 +37,58 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import VueApexCharts from 'vue3-apexcharts'
+
+interface Props {
+  chartData?: {
+    orders: number[]
+    itemsSold: number[]
+  }
+  monthLabels?: string[]
+  note?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  chartData: () => ({ orders: [], itemsSold: [] }),
+  monthLabels: () => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  note: 'Berdasarkan total pesanan selesai.'
+})
 
 const options = [
-  { value: 'optionOne', label: 'Monthly' },
-  { value: 'optionTwo', label: 'Quarterly' },
-  { value: 'optionThree', label: 'Annually' },
+  { value: 'optionOne', label: 'Perbulan' },
+  // { value: 'optionTwo', label: 'Hari' },
+  // { value: 'optionThree', label: 'Tahun' },
 ]
 
 const selected = ref('optionOne')
-import VueApexCharts from 'vue3-apexcharts'
 
 const series = ref([
   {
-    name: 'Sales',
-    data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+    name: 'Pesanan',
+    data: props.chartData.orders.length > 0 ? props.chartData.orders : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
   {
-    name: 'Revenue',
-    data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+    name: 'Barang Terjual',
+    data: props.chartData.itemsSold.length > 0 ? props.chartData.itemsSold : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
 ])
+
+// Watch for prop changes and update chart data
+watch(() => props.chartData, (newData) => {
+  if (newData) {
+    series.value = [
+      {
+        name: 'Pesanan',
+        data: newData.orders.length > 0 ? newData.orders : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      {
+        name: 'Barang Terjual',
+        data: newData.itemsSold.length > 0 ? newData.itemsSold : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    ]
+  }
+}, { immediate: true })
 
 const chartOptions = ref({
   legend: {
@@ -65,7 +96,7 @@ const chartOptions = ref({
     position: 'top',
     horizontalAlign: 'left',
   },
-  colors: ['#465FFF', '#9CB9FF'],
+  colors: ['#2fa36b', '#9CB9FF'],
   chart: {
     fontFamily: 'Outfit, sans-serif',
     type: 'area',
@@ -113,20 +144,7 @@ const chartOptions = ref({
   },
   xaxis: {
     type: 'category',
-    categories: [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ],
+    categories: props.monthLabels,
     axisBorder: {
       show: false,
     },
@@ -145,6 +163,12 @@ const chartOptions = ref({
     },
   },
 })
+
+watch(() => props.monthLabels, (newLabels) => {
+  if (newLabels && newLabels.length > 0) {
+    chartOptions.value.xaxis.categories = newLabels
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>

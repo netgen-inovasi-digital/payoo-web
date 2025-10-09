@@ -1,7 +1,7 @@
 <template>
   <div class="relative" v-click-outside="closeDropdown" ref="dropdown">
     <!-- Dropdown Trigger Button -->
-    <button @click="toggleDropdown" :class="buttonClass">
+    <button @click="toggleDropdown" :class="buttonClass" style="display: none;">
       <slot name="icon">
         <!-- Default icon -->
         <svg

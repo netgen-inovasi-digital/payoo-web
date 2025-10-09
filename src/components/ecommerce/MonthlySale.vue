@@ -3,7 +3,7 @@
     class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6"
   >
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Monthly Sales</h3>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Penjualan Bulanan</h3>
 
       <div class="relative h-fit">
         <DropdownMenu :menu-items="menuItems">
@@ -35,25 +35,38 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import DropdownMenu from '../common/DropdownMenu.vue'
+import VueApexCharts from 'vue3-apexcharts'
+import { useFormatters } from '@/composables/useFormatters'
+
+interface Props {
+  chartData?: number[]
+  monthLabels?: string[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  chartData: () => [],
+  monthLabels: () => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+})
+
+const { formatCurrency } = useFormatters()
+
 const menuItems = [
   { label: 'View More', onClick: () => console.log('View More clicked') },
   { label: 'Delete', onClick: () => console.log('Delete clicked') },
 ]
 
-import VueApexCharts from 'vue3-apexcharts'
-
 const series = ref([
   {
-    name: 'Sales',
-    data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+    name: 'Pendapatan',
+    data: props.chartData.length > 0 ? props.chartData : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
 ])
 
 const chartOptions = ref({
-  colors: ['#465fff'],
+  colors: ['#2fa36b'],
   chart: {
     fontFamily: 'Outfit, sans-serif',
     type: 'bar',
@@ -78,20 +91,7 @@ const chartOptions = ref({
     colors: ['transparent'],
   },
   xaxis: {
-    categories: [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ],
+    categories: props.monthLabels,
     axisBorder: {
       show: false,
     },
@@ -126,14 +126,26 @@ const chartOptions = ref({
       show: false,
     },
     y: {
-      formatter: function (val) {
-        return val.toString()
+      formatter: function (val: number) {
+        return formatCurrency(val)
       },
     },
   },
 })
 
-onMounted(() => {
-  // Any additional setup can be done here if needed
-})
+// Watch for prop changes and update chart data
+watch(() => props.chartData, (newData) => {
+  if (newData && newData.length > 0) {
+    series.value = [{
+      name: 'Pendapatan',
+      data: newData
+    }]
+  }
+}, { immediate: true })
+
+watch(() => props.monthLabels, (newLabels) => {
+  if (newLabels && newLabels.length > 0) {
+    chartOptions.value.xaxis.categories = newLabels
+  }
+}, { immediate: true })
 </script>
