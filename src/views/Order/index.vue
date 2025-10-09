@@ -30,15 +30,15 @@
             </div>
 
             <!-- Products Grid -->
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-[70vh] lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-[40vh] sm:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
               <div v-for="product in filteredProducts" :key="product.id"
                 class="bg-white rounded-lg p-3 sm:p-4 shadow relative">
                 <button @click="addToCart(product)"
-                  class="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                  class="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg">
                   <span class="text-xl">+</span>
                 </button>
 
-                <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-28 sm:h-40 object-cover rounded-lg mb-2 sm:mb-3">
+                <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-28 md:h-36 lg:h-40 object-cover rounded-lg mb-2 sm:mb-3">
                 <h3 class="font-medium mb-1 sm:mb-2 text-sm sm:text-base line-clamp-2">{{ product.name }}</h3>
                 <div class="flex justify-between items-center">
                   <span class="text-emerald-500 font-medium text-sm sm:text-base">{{ formatCurrency(product.selling_price) }}</span>
@@ -52,12 +52,19 @@
         </div>
 
         <!-- Right side - Cart -->
-        <div class="col-span-1 lg:col-span-4 fixed lg:relative bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-auto z-50 lg:z-auto">
-          <div class="bg-white rounded-none lg:rounded-lg p-4 sm:p-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow lg:sticky lg:top-6">
+        <div class="col-span-1 lg:col-span-4 fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto z-50 sm:z-auto">
+          <div class="bg-white rounded-none sm:rounded-lg p-4 sm:p-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow sm:sticky sm:top-6">
             <h2 class="text-xl font-semibold mb-4">Your Order</h2>
 
-            <!-- Cart Items -->
-            <div class="space-y-4 mb-6">
+            <!-- Scrollable content area (keeps sheet fixed on mobile) -->
+            <!-- handle for mobile sheet -->
+            <div class="block sm:hidden w-full flex justify-center mb-2">
+              <div class="w-10 h-1.5 rounded-full bg-gray-200"></div>
+            </div>
+
+            <div class="space-y-4 mb-4 max-h-[40vh] sm:max-h-none overflow-y-auto pr-2 pb-24">
+              <!-- Cart Items -->
+              <div class="space-y-4 mb-6">
               <!-- Empty Cart Message -->
               <div v-if="cartItems.length === 0" class="text-center py-8">
                 <div class="text-gray-400 mb-2">
@@ -71,36 +78,39 @@
               </div>
 
               <!-- Cart Items List -->
-              <div v-else v-for="item in cartItems" :key="item.product.id" class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 border rounded-lg">
-                <div class="flex gap-3 w-full">
-                  <img :src="item.product.photo || '/images/product/default.jpg'" :alt="item.product.name"
-                    class="w-16 h-16 object-cover rounded-lg">
-                  <div class="flex-1">
-                    <h4 class="font-medium">{{ item.product.name }}</h4>
-                    <div class="flex justify-between items-center mt-1">
-                      <span class="text-emerald-600 font-medium">{{ formatCurrency(item.product.selling_price) }}</span>
-                      <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm">
-                        Hapus
+              <div v-else v-for="item in cartItems" :key="item.product.id" class="flex items-start gap-3 p-3 border rounded-lg">
+                <img :src="item.product.photo || '/images/product/default.jpg'" :alt="item.product.name"
+                  class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg flex-shrink-0" />
+
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-3">
+                    <h4 class="font-medium text-sm md:text-base truncate">{{ item.product.name }}</h4>
+                    <div class="text-emerald-600 font-medium text-sm md:text-base">{{ formatCurrency(item.product.selling_price) }}</div>
+                  </div>
+
+                  <div class="mt-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <button @click="updateQuantity(item.product.id, false)" aria-label="decrease quantity"
+                        class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50">
+                        -
+                      </button>
+                      <span class="px-3 text-sm md:text-base">{{ item.quantity }}</span>
+                      <button @click="updateQuantity(item.product.id, true)" aria-label="increase quantity"
+                        class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50">
+                        +
                       </button>
                     </div>
+
+                    <button @click="removeFromCart(item.product.id)" class="text-red-500 text-sm md:text-base">
+                      Hapus
+                    </button>
                   </div>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0 justify-end">
-                  <button @click="updateQuantity(item.product.id, false)"
-                    class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50">
-                    -
-                  </button>
-                  <span class="w-12 text-center">{{ item.quantity }}</span>
-                  <button @click="updateQuantity(item.product.id, true)"
-                    class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50">
-                    +
-                  </button>
-                </div>
               </div>
-            </div>
+              </div>
 
-            <!-- Inputs -->
-            <div v-if="cartItems.length > 0" class="space-y-4 mb-6">
+              <!-- Inputs -->
+              <div v-if="cartItems.length > 0" class="space-y-4 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran<span class="text-error-500"> *</span></label>
                 <select v-model="orderForm.payment_method"
@@ -123,10 +133,10 @@
                   class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Masukkan catatan untuk pesanan..."></textarea>
               </div>
-            </div>
+              </div>
 
-            <!-- Order Summary -->
-            <div v-if="cartItems.length > 0" class="space-y-2 mb-6">
+              <!-- Order Summary -->
+              <div v-if="cartItems.length > 0" class="space-y-2 mb-6">
               <div class="flex justify-between">
                 <span>Subtotal</span>
                 <span>{{ formatCurrency(subtotal) }}</span>
@@ -139,14 +149,17 @@
                 <span>Total</span>
                 <span class="text-emerald-500">{{ formatCurrency(total) }}</span>
               </div>
+              </div>
             </div>
 
-            <!-- Checkout Button -->
-            <button v-if="cartItems.length > 0" @click="checkout"
-              class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="cartItems.length === 0 || !isFormValid">
-              Checkout
-            </button>
+            <!-- Checkout Button (kept visible at bottom of sheet) -->
+            <div class="mt-2">
+              <button v-if="cartItems.length > 0" @click="checkout"
+                class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="cartItems.length === 0 || !isFormValid">
+                Checkout
+              </button>
+            </div>
           </div>
         </div>
       </div>

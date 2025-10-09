@@ -61,84 +61,86 @@
     </div>
     <!-- Dropdown End -->
 
-    <!-- Profile Edit Modal -->
-    <div v-if="isProfileModalOpen" class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4">
-      <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-4 sm:p-6 shadow-lg dark:bg-gray-900">
-        <h3 class="mb-4 text-lg font-semibold">Edit Profil</h3>
-        <form @submit.prevent="saveProfile" class="space-y-4">
-          <!-- Upload Foto -->
-          <div>
-            <label class="block text-sm font-medium">Foto Profil<span class="text-error-500"> *</span></label>
-            <input
-              type="file"
-              accept="image/*"
-              @change="handleProfileImageUpload"
-              class="mt-1 w-full rounded-lg border border-gray-300 p-2"
-              :disabled="profileLoading || imageUpload.isUploading.value"
-            />
-            <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
-              Mengupload...
+    <!-- Profile Edit Modal (teleported to body so it escapes header stacking context) -->
+    <teleport to="body" v-if="isProfileModalOpen">
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-4 sm:p-6 shadow-lg dark:bg-gray-900">
+          <h3 class="mb-4 text-lg font-semibold">Edit Profil</h3>
+          <form @submit.prevent="saveProfile" class="space-y-4">
+            <!-- Upload Foto -->
+            <div>
+              <label class="block text-sm font-medium">Foto Profil<span class="text-error-500"> *</span></label>
+              <input
+                type="file"
+                accept="image/*"
+                @change="handleProfileImageUpload"
+                class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+                :disabled="profileLoading || imageUpload.isUploading.value"
+              />
+              <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
+                Mengupload...
+              </div>
+              <div v-if="imageUpload.selectedFile.value" class="text-sm text-green-600 mt-1">
+                Selected: {{ imageUpload.selectedFile.value.name }}
+              </div>
+              <div v-if="profileForm.photo" class="mt-3">
+                <img
+                  :src="profileForm.photo || imageUpload.previewUrl.value"
+                  alt="Preview Foto"
+                  class="h-24 rounded-lg object-cover"
+                />
+              </div>
             </div>
-            <div v-if="imageUpload.selectedFile.value" class="text-sm text-green-600 mt-1">
-              Selected: {{ imageUpload.selectedFile.value.name }}
-            </div>
-            <div v-if="profileForm.photo" class="mt-3">
-              <img
-                :src="profileForm.photo || imageUpload.previewUrl.value"
-                alt="Preview Foto"
-                class="h-24 rounded-lg object-cover"
+            <!-- Nama -->
+            <div>
+              <label class="block text-sm font-medium">Nama<span class="text-error-500"> *</span></label>
+              <input
+                v-model="profileForm.name"
+                type="text"
+                class="mt-1 w-full rounded-lg border border-gray-300 p-2"
               />
             </div>
-          </div>
-          <!-- Nama -->
-          <div>
-            <label class="block text-sm font-medium">Nama<span class="text-error-500"> *</span></label>
-            <input
-              v-model="profileForm.name"
-              type="text"
-              class="mt-1 w-full rounded-lg border border-gray-300 p-2"
-            />
-          </div>
-          <!-- Email -->
-          <div>
-            <label class="block text-sm font-medium">Email<span class="text-error-500"> *</span></label>
-            <input
-              v-model="profileForm.email"
-              type="email"
-              required
-              class="mt-1 w-full rounded-lg border border-gray-300 p-2"
-            />
-          </div>
-          <!-- Telepon -->
-          <div>
-            <label class="block text-sm font-medium">Telepon<span class="text-error-500"> *</span></label>
-            <input
-              v-model="profileForm.phone"
-              type="text"
-              class="mt-1 w-full rounded-lg border border-gray-300 p-2"
-            />
-          </div>
-          <!-- Actions -->
-          <div class="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              @click="closeProfileModal"
-              class="rounded-lg border px-4 py-2 text-sm"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              :disabled="profileLoading || imageUpload.isUploading.value"
-              class="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="profileLoading">Menyimpan...</span>
-              <span v-else>Simpan</span>
-            </button>
-          </div>
-        </form>
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium">Email<span class="text-error-500"> *</span></label>
+              <input
+                v-model="profileForm.email"
+                type="email"
+                required
+                class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+              />
+            </div>
+            <!-- Telepon -->
+            <div>
+              <label class="block text-sm font-medium">Telepon<span class="text-error-500"> *</span></label>
+              <input
+                v-model="profileForm.phone"
+                type="text"
+                class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+              />
+            </div>
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                @click="closeProfileModal"
+                class="rounded-lg border px-4 py-2 text-sm"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                :disabled="profileLoading || imageUpload.isUploading.value"
+                class="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span v-if="profileLoading">Menyimpan...</span>
+                <span v-else>Simpan</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </teleport>
   </div>
 </template>
 
