@@ -1,13 +1,13 @@
 <template>
     <AdminLayout>
       <!-- <PageBreadcrumb pageTitle="Product Management" /> -->
-      <div class="container mx-auto p-4 sm:p-6">
+      <div class="container mx-auto px-3 py-4 sm:px-4 sm:py-5 lg:px-6 lg:py-6">
         <!-- Kategori Section -->
-        <div class="mb-6">
-          <h2 class="text-2xl font-semibold mb-4">Kategori</h2>
-          <div class="flex flex-nowrap overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap gap-2 pb-2">
+        <div class="mb-4 sm:mb-6">
+          <h2 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">Kategori</h2>
+          <div class="flex flex-nowrap overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap gap-2 pb-2 scrollbar-thin">
             <button @click="clearCategoryFilter" :class="[
-              'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-gray-50',
+              'px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border flex items-center gap-2 hover:bg-gray-50 text-sm sm:text-base whitespace-nowrap flex-shrink-0',
               selectedCategoryId === null
                 ? 'border-brand-500 bg-brand-50 text-brand-700'
                 : 'border-gray-300 text-gray-600'
@@ -15,7 +15,7 @@
               Semua Kategori
             </button>
             <button v-for="category in categories" :key="category.id" @click="filterByCategory(category.id)" :class="[
-              'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-brand-50',
+              'px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border flex items-center gap-2 hover:bg-brand-50 text-sm sm:text-base whitespace-nowrap flex-shrink-0',
               selectedCategoryId === category.id
                 ? 'border-brand-500 bg-brand-50 text-brand-700'
                 : 'border-brand-500 text-brand-600'
@@ -24,9 +24,9 @@
               <!-- <span @click.stop="deleteCategory(category)" class="text-red-500 hover:text-red-700">×</span> -->
             </button>
             <button @click="openCategoryModal"
-              class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 flex items-center gap-2 hover:bg-gray-50">
+              class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-300 text-gray-600 flex items-center gap-2 hover:bg-gray-50 text-sm sm:text-base whitespace-nowrap flex-shrink-0">
               Tambah Kategori
-              <span class="text-xl">+</span>
+              <span class="text-lg sm:text-xl">+</span>
             </button>
           </div>
         </div>
@@ -36,32 +36,32 @@
           <!-- Produk Section -->
           <div>
             <!-- Caption Produk -->
-            <h2 class="text-2xl font-semibold mb-4">Produk</h2>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">Produk</h2>
 
             <!-- Search, Total & Tambah Produk -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
               <!-- Search -->
               <div class="flex-1">
                 <input v-model="searchQuery" type="text" placeholder="Cari Produk"
-                  class="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+                  class="w-full px-3 py-2 sm:px-4 text-sm sm:text-base border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
               <!-- Total Produk -->
-              <div class="text-gray-600 whitespace-nowrap order-last sm:order-none">
+              <div class="text-gray-600 text-sm sm:text-base whitespace-nowrap order-last sm:order-none">
                 <span v-if="selectedCategoryId">
                   {{ getCategoryName(selectedCategoryId) }}: {{ filteredProducts.length }}
                 </span>
                 <span v-else>
                   Total: {{ filteredProducts.length }}
                 </span>
-                <span v-if="searchQuery" class="text-sm text-gray-500 ml-1">
+                <span v-if="searchQuery" class="text-xs sm:text-sm text-gray-500 ml-1">
                   (filtered)
                 </span>
               </div>
 
               <!-- Tambah Produk -->
               <button @click="openAddProductModal"
-                class="w-full sm:w-auto px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
+                class="w-full sm:w-auto px-3 py-2 sm:px-4 text-sm sm:text-base bg-brand-500 text-white rounded-lg hover:bg-brand-600">
                 Tambah Produk
               </button>
             </div>
@@ -72,25 +72,25 @@
 
 
           <!-- Products Table -->
-          <div class="bg-white rounded-lg shadow overflow-x-auto -mx-4 sm:mx-0">
-            <div class="min-w-[800px]">
+          <div class="bg-white rounded-lg shadow overflow-x-auto -mx-3 sm:mx-0">
+            <div class="min-w-[700px] sm:min-w-[800px]">
             <table class="w-full">
               <thead>
                 <tr class="bg-gray-50">
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">No</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Foto</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nama</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Kategori</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Modal</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Jual</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Aksi</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">No</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Foto</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Nama</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Kategori</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Harga Modal</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Harga Jual</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr v-if="loading" class="text-center">
-                  <td colspan="7" class="px-6 py-8 text-gray-500">
+                  <td colspan="7" class="px-3 sm:px-6 py-6 sm:py-8 text-gray-500 text-sm">
                     <div class="flex justify-center items-center">
-                      <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                      <svg class="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                       </svg>
@@ -99,32 +99,32 @@
                   </td>
                 </tr>
                 <tr v-else-if="filteredProducts.length === 0" class="text-center">
-                  <td colspan="7" class="px-6 py-8 text-gray-500">
+                  <td colspan="7" class="px-3 sm:px-6 py-6 sm:py-8 text-gray-500 text-sm">
                     {{ searchQuery ? 'Tidak ada produk yang sesuai dengan pencarian' : 'Belum ada produk' }}
                   </td>
                 </tr>
                 <tr v-else v-for="(product, index) in filteredProducts" :key="product.id">
-                  <td class="px-6 py-4 text-sm text-gray-500">{{ index + 1 }}</td>
-                  <td class="px-6 py-4">
-                    <img :src="product.photo" :alt="product.name" class="h-12 w-12 object-cover rounded-lg"
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500">{{ index + 1 }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4">
+                    <img :src="product.photo" :alt="product.name" class="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-lg"
                       loading="lazy" />
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ product.name }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-500">{{ getCategoryName(product.category_id) }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(product.cost_price) }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(product.selling_price) }}</td>
-                  <td class="px-6 py-4 text-sm">
-                    <div class="flex gap-2">
-                      <button @click="editProduct(product)" class="text-blue-500">
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ product.name }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500">{{ getCategoryName(product.category_id) }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ formatCurrency(product.cost_price) }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ formatCurrency(product.selling_price) }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">
+                    <div class="flex gap-1.5 sm:gap-2">
+                      <button @click="editProduct(product)" class="text-blue-500 hover:text-blue-700">
                         <span class="sr-only">Edit</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
-                      <button @click="deleteProduct(product)" class="text-red-500">
+                      <button @click="deleteProduct(product)" class="text-red-500 hover:text-red-700">
                         <span class="sr-only">Delete</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -140,59 +140,62 @@
         </div>
 
         <!-- Add/Edit Product Modal -->
-        <div v-if="showProductModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
-          <div class="bg-white rounded-lg w-full max-w-lg mx-3 sm:mx-0 p-4 sm:p-6 my-4">
-            <h3 class="text-xl font-semibold mb-4">
-              {{ editingProduct ? 'Edit Product' : 'Add New Product' }}
-            </h3>
-
-            <form @submit.prevent="saveProduct" class="space-y-4">
+        <div v-if="showProductModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-3 md:p-4 z-50 overflow-y-auto">
+          <div class="bg-white rounded-lg w-full max-w-[95vw] sm:max-w-md md:max-w-lg my-2 sm:my-4 max-h-[92vh] sm:max-h-[88vh] flex flex-col">
+            <div class="px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-5 pb-2 sm:pb-3 border-b border-gray-200 flex-shrink-0">
+              <h3 class="text-lg sm:text-xl font-semibold">
+                {{ editingProduct ? 'Edit Product' : 'Add New Product' }}
+              </h3>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+              <form @submit.prevent="saveProduct" class="space-y-3 sm:space-y-4" id="productForm">
               <!-- Product Image -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Product Image<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Image<span class="text-error-500"> *</span></label>
                 <input
                   type="file"
                   accept="image/*"
                   @change="handleImageUpload"
-                  class="mt-1 w-full rounded-lg border border-gray-300 p-2"
+                  class="mt-1 w-full rounded-lg border border-gray-300 p-1.5 sm:p-2 text-sm"
                   :disabled="loading || imageUpload.isUploading.value"
                   :required="!productForm.photo"
                 />
-                <div v-if="imageUpload.isUploading.value" class="text-sm text-blue-600 mt-1">
+                <div v-if="imageUpload.isUploading.value" class="text-xs sm:text-sm text-blue-600 mt-1">
                   Mengupload...
                 </div>
-                <div v-if="imageUpload.selectedFile.value" class="text-sm text-green-600 mt-1">
+                <div v-if="imageUpload.selectedFile.value" class="text-xs sm:text-sm text-green-600 mt-1 truncate">
                   Selected: {{ imageUpload.selectedFile.value.name }}
                 </div>
-                <div v-if="productForm.photo" class="mt-3">
+                <div v-if="productForm.photo" class="mt-2 sm:mt-3">
                   <img
                     :src="productForm.photo || imageUpload.previewUrl.value"
                     alt="Preview Foto"
-                    class="h-24 rounded-lg object-cover"
+                    class="h-20 sm:h-24 rounded-lg object-cover"
                   />
                 </div>
               </div>
 
               <!-- Product Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Product Name<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Name<span class="text-error-500"> *</span></label>
                 <input v-model="productForm.name" type="text" required
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+                  class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
               <!-- Description -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Description<span class="text-error-500"> *</span></label>
                 <textarea v-model="productForm.description" required
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
                   rows="3"></textarea>
               </div>
 
               <!-- Category -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Category<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Category<span class="text-error-500"> *</span></label>
                 <select v-model="productForm.category_id" required
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500">
+                  class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500">
                   <option value="0">Select category</option>
                   <option v-for="category in categories" :key="category.id" :value="category.id">
                     {{ category.name }}
@@ -202,64 +205,74 @@
 
               <!-- Cost Price -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Modal (Rp)<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Harga Modal (Rp)<span class="text-error-500"> *</span></label>
                 <input v-model.number="productForm.cost_price" type="number" required min="0"
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+                  class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
               <!-- Selling Price -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Jual (Rp)<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Harga Jual (Rp)<span class="text-error-500"> *</span></label>
                 <input v-model.number="productForm.selling_price" type="number" required min="0"
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+                  class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
-              <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
-                <button type="button" @click="showProductModal = false" class="w-full sm:w-auto px-4 py-2 border rounded-lg">
+              </form>
+            </div>
+            
+            <div class="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border-t border-gray-200 flex-shrink-0 bg-gray-50">
+              <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+                <button type="button" @click="showProductModal = false" class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm border rounded-lg bg-white hover:bg-gray-50">
                   Cancel
                 </button>
-                <button type="submit" :disabled="loading || imageUpload.isUploading.value"
-                  class="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" form="productForm" :disabled="loading || imageUpload.isUploading.value"
+                  class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
                   <span v-if="imageUpload.isUploading.value">Mengupload...</span>
                   <span v-else-if="loading">Menyimpan...</span>
                   <span v-else>{{ editingProduct ? 'Simpan Perubahan' : 'Tambah Produk' }}</span>
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
 
         <!-- Category Management Modal -->
-        <div v-if="showCategoryModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
-          <div class="bg-white rounded-lg w-full max-w-md mx-3 sm:mx-0 p-4 sm:p-6 my-4">
-            <h3 class="text-xl font-semibold mb-4">Manage Categories</h3>
+        <div v-if="showCategoryModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-3 md:p-4 z-50 overflow-y-auto">
+          <div class="bg-white rounded-lg w-full max-w-[95vw] sm:max-w-sm md:max-w-md my-2 sm:my-4 max-h-[92vh] sm:max-h-[88vh] flex flex-col">
+            <div class="px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-5 pb-2 sm:pb-3 border-b border-gray-200 flex-shrink-0">
+              <h3 class="text-lg sm:text-xl font-semibold">Manage Categories</h3>
+            </div>
 
-            <!-- Add Category Form -->
-            <form @submit.prevent="addCategory" class="mb-6">
-              <div class="flex flex-col sm:flex-row gap-2">
-                <input v-model="newCategory" type="text" placeholder="Nama kategori baru" required
-                  class="flex-1 px-3 py-2 border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
-                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700">
-                  Tambah
-                </button>
-              </div>
-            </form>
+            <div class="overflow-y-auto flex-1 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+              <!-- Add Category Form -->
+              <form @submit.prevent="addCategory" class="mb-4 sm:mb-6">
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input v-model="newCategory" type="text" placeholder="Nama kategori baru" required
+                    class="flex-1 px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
+                  <button type="submit" class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700">
+                    Tambah
+                  </button>
+                </div>
+              </form>
 
-            <!-- Categories List -->
-            <div class="space-y-2">
-              <div v-for="category in categories" :key="category.id"
-                class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span>{{ category.name }}</span>
-                <button @click="deleteCategory(category)" class="text-red-600 hover:text-red-700">
-                  Hapus
-                </button>
+              <!-- Categories List -->
+              <div class="space-y-2">
+                <div v-for="category in categories" :key="category.id"
+                  class="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg">
+                  <span class="break-words pr-2 text-sm sm:text-base min-w-0 flex-1">{{ category.name }}</span>
+                  <button @click="deleteCategory(category)" class="text-red-600 hover:text-red-700 flex-shrink-0 text-sm sm:text-base px-2">
+                    Hapus
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div class="flex justify-end mt-6">
-              <button @click="showCategoryModal = false" class="px-4 py-2 border rounded-lg">
-                Tutup
-              </button>
+            <div class="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border-t border-gray-200 flex-shrink-0 bg-gray-50">
+              <div class="flex justify-end">
+                <button @click="showCategoryModal = false" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm border rounded-lg bg-white hover:bg-gray-50">
+                  Tutup
+                </button>
+              </div>
             </div>
           </div>
         </div>

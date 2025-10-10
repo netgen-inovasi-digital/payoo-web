@@ -62,7 +62,7 @@
               <div class="w-10 h-1.5 rounded-full bg-gray-200"></div>
             </div>
 
-            <div class="space-y-4 mb-4 max-h-[40vh] sm:max-h-none overflow-y-auto pr-2 pb-24">
+            <div class="space-y-4 mb-4 max-h-[30vh] sm:max-h-none overflow-y-auto pr-2 pb-24">
               <!-- Cart Items -->
               <div class="space-y-4 mb-6">
               <!-- Empty Cart Message -->
@@ -424,6 +424,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+
 .sticky {
   position: sticky;
   top: 1.5rem;

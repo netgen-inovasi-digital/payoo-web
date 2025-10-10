@@ -1,31 +1,47 @@
 <template>
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">
     <!-- Metric Cards -->
     <div
       v-for="(metric, index) in displayMetrics"
       :key="metric.key"
-      class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 pb-7 dark:border-gray-800 dark:bg-white/[0.03] h-[250px] sm:px-6 sm:pt-6"
+      class="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-5 dark:border-gray-800 dark:bg-white/[0.03] min-h-[220px] sm:px-5 sm:pt-5 sm:pb-6 min-w-0"
     >
-      <div class="flex mb-4">
-        <div :class="getIconBg(index)" class="w-10 h-10 rounded-full flex items-center justify-center">
+      <!-- Icon -->
+      <div class="flex mb-3 flex-shrink-0">
+        <div :class="getIconBg(index)" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
           <component :is="getIcon(metric.key)" :class="getIconColor(index)" class="w-5 h-5" />
         </div>
       </div>
-      <div class="text-sm text-gray-500 mb-4">{{ metric.label }}</div>
-      <div class="text-2xl font-semibold mb-8">{{ formatValue(metric.key, metric.total) }}</div>
-      <div class="flex flex-col text-sm gap-1" :class="metric.direction === 'up' ? 'text-green-500' : 'text-red-500'">
-        <div class="flex items-center">
+      
+      <!-- Label -->
+      <div class="text-sm text-gray-500 mb-3 break-words line-clamp-2 min-w-0">
+        {{ metric.label }}
+      </div>
+      
+      <!-- Value -->
+      <div class="text-xl sm:text-2xl font-semibold mb-auto pb-4 min-w-0 break-words overflow-wrap-anywhere">
+        {{ formatValue(metric.key, metric.total) }}
+      </div>
+      
+      <!-- Growth Stats -->
+      <div 
+        class="flex flex-col text-sm gap-1 min-w-0 mt-auto pt-2 border-t border-gray-100 dark:border-gray-800" 
+        :class="metric.direction === 'up' ? 'text-green-500' : 'text-red-500'"
+      >
+        <div class="flex items-center flex-wrap gap-1">
           <svg 
-            class="w-3 h-3 mr-2" 
+            class="w-3 h-3 flex-shrink-0" 
             :class="{ 'transform rotate-180': metric.direction === 'down' }" 
             viewBox="0 0 12 12" 
             fill="currentColor"
           >
             <path d="M6 0l6 8H0z" />
           </svg>
-          <span>{{ metric.growth_pct.toFixed(2) }}%</span>
+          <span class="font-medium">{{ metric.growth_pct.toFixed(2) }}%</span>
         </div>
-        <span class="text-gray-500">{{ metric.compare_text }}</span>
+        <span class="text-xs text-gray-500 dark:text-gray-400 break-words">
+          {{ metric.compare_text }}
+        </span>
       </div>
     </div>
   </div>
@@ -177,3 +193,20 @@ defineOptions({
   name: 'EcommerceMetrics'
 })
 </script>
+
+<style scoped>
+/* Fallback untuk overflow-wrap jika Tailwind tidak support */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Line clamp untuk label - fallback manual jika tidak support */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
