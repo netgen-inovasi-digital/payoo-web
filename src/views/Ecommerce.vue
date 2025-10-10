@@ -17,23 +17,23 @@
       </button>
     </div>
 
-    <div v-else class="grid grid-cols-12 gap-4 md:gap-6">
+    <div v-else class="grid grid-cols-12 gap-4 md:gap-6 min-w-0">
       <!-- Store Profile Card -->
-      <div class="col-span-12">
+      <div class="col-span-12 min-w-0">
         <store-profile />
       </div>
 
-      <div class="col-span-12 space-y-6 xl:col-span-7">
+      <div class="col-span-12 space-y-6 xl:col-span-7 min-w-0">
         <ecommerce-metrics :metrics="summaryMetrics" />
       </div>
-      <div class="col-span-12 xl:col-span-5">
+      <div class="col-span-12 xl:col-span-5 min-w-0">
         <monthly-sale 
           :chart-data="monthlyRevenueChartData" 
           :month-labels="monthLabels"
         />
       </div>
 
-      <div class="col-span-12">
+      <div class="col-span-12 min-w-0">
         <statistics-chart 
           :chart-data="statisticsChartData"
           :month-labels="monthLabels"

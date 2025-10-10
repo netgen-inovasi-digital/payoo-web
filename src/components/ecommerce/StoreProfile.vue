@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div v-else class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+    <div v-else class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 min-w-0">
       <!-- Store Image -->
       <div
         class="relative h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-gray-100 shadow-sm"
@@ -27,10 +27,10 @@
       </div>
 
       <!-- Store Info -->
-      <div class="flex-1 w-full text-center sm:text-left">
-        <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-0">
-          <div class="space-y-2 w-full sm:w-auto">
-            <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">
+      <div class="flex-1 w-full text-center sm:text-left min-w-0">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-0 min-w-0">
+          <div class="space-y-2 w-full sm:w-auto min-w-0">
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-white break-words">
               {{ shop?.name }}
             </h2>
             <span
@@ -63,11 +63,11 @@
         </div>
 
         <!-- Store Details -->
-        <div class="mt-6 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start gap-4 sm:gap-6">
+        <div class="mt-6 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 min-w-0">
           <!-- Alamat -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 min-w-0 max-w-full sm:max-w-xs">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
+              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -89,7 +89,7 @@
                 />
               </svg>
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
               <p class="text-sm text-gray-500 text-center sm:text-left">Alamat</p>
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left break-words">
                 {{ shop ? `${shop.address}, ${shop.city}, ${shop.province}` : '' }}
@@ -98,9 +98,9 @@
           </div>
 
           <!-- Pemilik -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 min-w-0">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
+              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -117,18 +117,18 @@
                 />
               </svg>
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
               <p class="text-sm text-gray-500">Email</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">
                 {{ shop?.email }}
               </p>
             </div>
           </div>
 
           <!-- Telepon -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 min-w-0">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
+              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -145,9 +145,9 @@
                 />
               </svg>
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
               <p class="text-sm text-gray-500">Telepon</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">
                 {{ shop?.phone }}
               </p>
             </div>
