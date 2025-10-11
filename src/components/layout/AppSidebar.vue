@@ -145,6 +145,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 import { useSidebar } from "@/composables/useSidebar";
+import { HorizontalDots, ChevronDownIcon } from "@/icons";
 
 // Define types for menu items
 interface SubMenuItem {

@@ -28,15 +28,24 @@
     </div>
 
     <div class="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartOne" class="-ml-5 min-w-[650px] xl:min-w-full pl-2">
-        <VueApexCharts type="bar" height="180" :options="chartOptions" :series="series" />
+      <div class="-ml-5 min-w-[650px] xl:min-w-full pl-2">
+        <VueApexCharts 
+          v-if="chartReady"
+          type="bar" 
+          height="180" 
+          :options="chartOptions" 
+          :series="series" 
+        />
+        <div v-else class="flex items-center justify-center h-[180px]">
+          <div class="text-gray-500">Loading chart...</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
 import DropdownMenu from '../common/DropdownMenu.vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useFormatters } from '@/composables/useFormatters'
@@ -57,6 +66,9 @@ const menuItems = [
   { label: 'View More', onClick: () => console.log('View More clicked') },
   { label: 'Delete', onClick: () => console.log('Delete clicked') },
 ]
+
+// Chart ready state
+const chartReady = ref(false)
 
 const series = ref([
   {
@@ -131,6 +143,13 @@ const chartOptions = ref({
       },
     },
   },
+})
+
+// Initialize chart after DOM is ready
+onMounted(() => {
+  nextTick(() => {
+    chartReady.value = true
+  })
 })
 
 // Watch for prop changes and update chart data

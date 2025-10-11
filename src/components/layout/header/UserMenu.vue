@@ -5,7 +5,7 @@
       @click.prevent="toggleDropdown"
     >
       <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img :src="userPhoto || '/images/user/usernopic.jpg'" alt="User" onerror="this.src='https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"/>
+        <img :src="userPhoto || 'https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'" alt="User" onerror="this.src='https://p1.hiclipart.com/preview/314/450/342/circle-user-profile-avatar-computer-program-symbol-oval-png-clipart.jpg'"/>
       </span>
 
       <span class="block mr-1 font-medium text-theme-sm">{{ userName }}</span>
