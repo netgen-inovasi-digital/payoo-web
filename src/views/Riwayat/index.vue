@@ -279,7 +279,7 @@ const totalRevenue = computed(() => {
 const fetchReports = async () => {
   try {
     loading.value = true
-    const shopId = String(authStore.user?.shop_id || authStore.user?.id)
+    const shopId = String(authStore.user?.shop_id)
     const response = await reportService.getReports(shopId, filterForm.value.period)
 
     if (response.status === 'success') {
