@@ -196,6 +196,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { reportService } from '@/api/services/report.service'
 import { orderService } from '@/api/services/order.service'
 import { useFormatters } from '@/composables/useFormatters'
+import { useAuthStore } from '@/stores/auth.store'
 import type { ReportData, ReportPeriod } from '@/api/types/report.types'
 import type { Order } from '@/api/types/order.types'
 
@@ -205,6 +206,7 @@ defineOptions({
 
 // Composables
 const { formatDate, formatPaymentMethod, formatCurrency } = useFormatters()
+const authStore = useAuthStore()
 
 interface TransactionItem {
   name: string;
@@ -277,7 +279,7 @@ const totalRevenue = computed(() => {
 const fetchReports = async () => {
   try {
     loading.value = true
-    const shopId = '1' // Hardcode for now, should get from auth/store
+    const shopId = String(authStore.user?.shop_id || authStore.user?.id)
     const response = await reportService.getReports(shopId, filterForm.value.period)
 
     if (response.status === 'success') {
