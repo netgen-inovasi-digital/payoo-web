@@ -424,6 +424,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+
 .sticky {
   position: sticky;
   top: 1.5rem;

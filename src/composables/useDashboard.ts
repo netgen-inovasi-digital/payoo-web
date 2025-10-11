@@ -13,12 +13,14 @@ export const useDashboard = () => {
       error.value = null
       const response = await dashboardService.getDashboardData()
       
-      if (response.status === 'success') {
+      if (response.status === 'success' && response.data) {
         dashboardData.value = response.data
+      } else {
+        error.value = 'Data dashboard tidak tersedia'
       }
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err)
-      error.value = 'Failed to fetch dashboard data'
+      error.value = 'Gagal memuat data dashboard. Silakan coba lagi.'
     } finally {
       loading.value = false
     }
@@ -29,29 +31,31 @@ export const useDashboard = () => {
   const monthlySales = computed(() => dashboardData.value?.monthly_sales || [])
   const statistics = computed(() => dashboardData.value?.statistics || null)
 
-  // Format data for charts
+  // Format data for charts with safe fallbacks
   const monthlyRevenueChartData = computed(() => {
-    if (!dashboardData.value) return []
-    return dashboardData.value.monthly_sales.map(item => item.revenue)
+    if (!dashboardData.value?.monthly_sales || !Array.isArray(dashboardData.value.monthly_sales)) return []
+    return dashboardData.value.monthly_sales.map(item => item?.revenue ?? 0)
   })
 
   const monthlyTransactionsChartData = computed(() => {
-    if (!dashboardData.value) return []
-    return dashboardData.value.monthly_sales.map(item => item.transactions)
+    if (!dashboardData.value?.monthly_sales || !Array.isArray(dashboardData.value.monthly_sales)) return []
+    return dashboardData.value.monthly_sales.map(item => item?.transactions ?? 0)
   })
 
   const statisticsChartData = computed(() => {
-    if (!dashboardData.value?.statistics) return { orders: [], itemsSold: [] }
+    if (!dashboardData.value?.statistics?.series || !Array.isArray(dashboardData.value.statistics.series)) {
+      return { orders: [], itemsSold: [] }
+    }
     
     return {
-      orders: dashboardData.value.statistics.series.map(item => item.orders),
-      itemsSold: dashboardData.value.statistics.series.map(item => item.items_sold)
+      orders: dashboardData.value.statistics.series.map(item => item?.orders ?? 0),
+      itemsSold: dashboardData.value.statistics.series.map(item => item?.items_sold ?? 0)
     }
   })
 
   const monthLabels = computed(() => {
-    if (!dashboardData.value) return []
-    return dashboardData.value.monthly_sales.map(item => item.month)
+    if (!dashboardData.value?.monthly_sales || !Array.isArray(dashboardData.value.monthly_sales)) return []
+    return dashboardData.value.monthly_sales.map(item => item?.month ?? '')
   })
 
   return {
