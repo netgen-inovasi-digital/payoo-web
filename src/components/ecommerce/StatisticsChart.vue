@@ -29,15 +29,24 @@
       </div>
     </div>
     <div class="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartThree" class="-ml-4 min-w-[1000px] xl:min-w-full pl-2">
-        <VueApexCharts type="area" height="310" :options="chartOptions" :series="series" />
+      <div class="-ml-4 min-w-[1000px] xl:min-w-full pl-2">
+        <VueApexCharts 
+          v-if="chartReady"
+          type="area" 
+          height="310" 
+          :options="chartOptions" 
+          :series="series" 
+        />
+        <div v-else class="flex items-center justify-center h-[310px]">
+          <div class="text-gray-500">Loading chart...</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 
 interface Props {
@@ -62,6 +71,12 @@ const options = [
 ]
 
 const selected = ref('optionOne')
+const chartReady = ref(false)
+
+onMounted(async () => {
+  await nextTick()
+  chartReady.value = true
+})
 
 const series = ref([
   {

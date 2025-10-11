@@ -18,7 +18,19 @@
                 ]">
                   Semua Kategori
                 </button>
-                <button v-for="category in categories" :key="category.id" @click="filterByCategory(category.id)" :class="[
+                
+                <!-- Loading Categories -->
+                <div v-if="loading" class="flex gap-2">
+                  <div class="px-4 py-2 rounded-lg border border-gray-200 bg-gray-100 animate-pulse">
+                    <div class="h-4 w-16 bg-gray-300 rounded"></div>
+                  </div>
+                  <div class="px-4 py-2 rounded-lg border border-gray-200 bg-gray-100 animate-pulse">
+                    <div class="h-4 w-20 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+                
+                <!-- Categories List -->
+                <button v-else v-for="category in categories" :key="category.id" @click="filterByCategory(category.id)" :class="[
                   'px-4 py-2 rounded-lg border flex items-center gap-2 hover:bg-brand-50 whitespace-nowrap',
                   selectedCategory === category.id
                     ? 'border-brand-500 bg-brand-50 text-brand-700'
@@ -31,11 +43,46 @@
 
             <!-- Products Grid -->
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-[40vh] sm:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
-              <div v-for="product in filteredProducts" :key="product.id"
+              <!-- Loading State with Skeleton -->
+              <template v-if="loading">
+                <div v-for="n in 6" :key="n" class="bg-white rounded-lg p-3 sm:p-4 shadow animate-pulse">
+                  <div class="w-full h-28 md:h-36 lg:h-40 bg-gray-200 rounded-lg mb-2 sm:mb-3"></div>
+                  <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div class="flex justify-between items-center">
+                      <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                      <div class="h-3 bg-gray-200 rounded w-1/4"></div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              
+              <!-- No Products State -->
+              <div v-else-if="filteredProducts.length === 0" class="col-span-2 lg:col-span-3 text-center py-12">
+                <div class="text-gray-400 mb-2">
+                  <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M9 21V9l3-3 3 3v12"/>
+                  </svg>
+                </div>
+                <p class="text-gray-500 font-medium mb-1">Tidak ada produk</p>
+                <p class="text-gray-400 text-sm">
+                  {{ selectedCategory ? 'Tidak ada produk di kategori ini' : 'Belum ada produk yang tersedia' }}
+                </p>
+              </div>
+
+              <!-- Products List -->
+              <div v-else v-for="product in filteredProducts" :key="product.id"
                 class="bg-white rounded-lg p-3 sm:p-4 shadow relative">
                 <button @click="addToCart(product)"
-                  class="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg">
-                  <span class="text-xl">+</span>
+                  :disabled="cartLoading === product.id"
+                  class="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg disabled:opacity-70 disabled:cursor-not-allowed">
+                  <svg v-if="cartLoading === product.id" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span v-else class="text-xl">+</span>
                 </button>
 
                 <img :src="product.photo || '/images/product/default.jpg'" :alt="product.name" class="w-full h-28 md:h-36 lg:h-40 object-cover rounded-lg mb-2 sm:mb-3">
@@ -58,11 +105,11 @@
 
             <!-- Scrollable content area (keeps sheet fixed on mobile) -->
             <!-- handle for mobile sheet -->
-            <div class="block sm:hidden w-full flex justify-center mb-2">
+            <div class="sm:hidden w-full flex justify-center mb-2">
               <div class="w-10 h-1.5 rounded-full bg-gray-200"></div>
             </div>
 
-            <div class="space-y-4 mb-4 max-h-[30vh] sm:max-h-none overflow-y-auto pr-2 pb-24">
+            <div class="space-y-4 mb-4 max-h-[30vh] sm:max-h-none overflow-y-auto">
               <!-- Cart Items -->
               <div class="space-y-4 mb-6">
               <!-- Empty Cart Message -->
@@ -155,9 +202,14 @@
             <!-- Checkout Button (kept visible at bottom of sheet) -->
             <div class="mt-2">
               <button v-if="cartItems.length > 0" @click="checkout"
-                class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                :disabled="cartItems.length === 0 || !isFormValid">
-                Checkout
+                class="w-full py-3 bg-emerald-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                :disabled="cartItems.length === 0 || !isFormValid || isProcessingPayment">
+                <svg v-if="isProcessingPayment" class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="isProcessingPayment">Memproses...</span>
+                <span v-else>Checkout</span>
               </button>
             </div>
           </div>
@@ -245,14 +297,11 @@ const isFormValid = computed(() => {
 // Fetch products from API
 const fetchProducts = async () => {
   try {
-    loading.value = true
     const response = await productService.getProducts()
     products.value = response.data || []
   } catch (error) {
     console.error('Failed to fetch products:', error)
     alert.error('Error!', 'Gagal mengambil data produk.')
-  } finally {
-    loading.value = false
   }
 }
 
@@ -293,14 +342,24 @@ const clearCategoryFilter = () => {
   selectedCategory.value = null
 }
 
+// Cart operation loading
+const cartLoading = ref<number | null>(null)
+
 // Methods
-const addToCart = (product: Product) => {
+const addToCart = async (product: Product) => {
+  cartLoading.value = product.id
+  
+  // Small delay to show loading (you can remove this in production)
+  await new Promise(resolve => setTimeout(resolve, 200))
+  
   const existingItem = cartItems.value.find(item => item.product.id === product.id)
   if (existingItem) {
     existingItem.quantity++
   } else {
     cartItems.value.push({ product, quantity: 1 })
   }
+  
+  cartLoading.value = null
 }
 
 const removeFromCart = (productId: number) => {
@@ -416,10 +475,17 @@ const processPayment = async () => {
 
 // Initialize data
 onMounted(async () => {
-  await Promise.all([
-    fetchProducts(),
-    fetchCategories()
-  ])
+  loading.value = true
+  try {
+    await Promise.all([
+      fetchProducts(),
+      fetchCategories()
+    ])
+  } catch (error) {
+    console.error('Failed to initialize data:', error)
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
