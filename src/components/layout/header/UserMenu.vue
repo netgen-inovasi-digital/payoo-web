@@ -35,7 +35,7 @@
             type="button"
           >
             <UserCircleIcon class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
-            Edit profile
+            Edit akun
           </button>
         </li>
         <!-- <li>
@@ -56,7 +56,7 @@
         <LogoutIcon
           class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
         />
-        Sign out
+        Keluar
       </router-link>
     </div>
     <!-- Dropdown End -->
