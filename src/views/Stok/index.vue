@@ -461,6 +461,13 @@ const dateTo = ref('')
 // Debounced search
 const { debouncedValue: debouncedSearchQuery } = useDebounce(searchQuery, 500)
 
+const getLocalDateTime = () => {
+  const now = new Date()
+  // Kurangi timezone offset untuk mendapatkan waktu lokal
+  const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+  return localDateTime.toISOString().slice(0, 16)
+}
+
 // Form
 const stockForm = ref<StockTransaction>({
   product_id: 0,
@@ -468,7 +475,7 @@ const stockForm = ref<StockTransaction>({
   type: 'in',
   buy_price: null,
   notes: '',
-  date: new Date().toISOString().slice(0, 16)
+  date: getLocalDateTime()
 })
 
 // Computed

@@ -554,6 +554,13 @@ const fetchProducts = async () => {
   }
 }
 
+const getLocalDateTime = () => {
+  const now = new Date()
+  // Kurangi timezone offset untuk mendapatkan waktu lokal
+  const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+  return localDateTime.toISOString().slice(0, 16)
+}
+
 const openStockModal = () => {
   stockForm.value = {
     product_id: 0,
@@ -561,7 +568,7 @@ const openStockModal = () => {
     type: 'in',
     buy_price: null,
     notes: '',
-    date: new Date().toISOString().slice(0, 16)
+    date: getLocalDateTime()
   }
   showStockModal.value = true
 }
