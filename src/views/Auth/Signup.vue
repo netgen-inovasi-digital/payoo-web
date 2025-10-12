@@ -11,10 +11,10 @@
               <h1
                 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md"
               >
-                Sign Up
+                Daftar
               </h1>
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                Enter your email and password to sign up!
+                Masukkan email dan kata sandi Anda untuk mendaftar!
               </p>
             </div>
             <div>
@@ -86,14 +86,14 @@
                         for="fullname"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Name<span class="text-error-500"> *</span>
+                        Nama<span class="text-error-500"> *</span>
                       </label>
                       <input
                         v-model="fullname"
                         type="text"
                         id="fullname"
                         name="fullname"
-                        placeholder="Enter your name"
+                        placeholder="Masukkan nama anda"
                         required
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
@@ -104,14 +104,14 @@
                         for="phone"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Phone<span class="text-error-500"> *</span>
+                        Telepon<span class="text-error-500"> *</span>
                       </label>
                       <input
                         v-model="phone"
                         type="tel"
                         id="phone"
                         name="phone"
-                        placeholder="Enter your phone number"
+                        placeholder="Masukkan nomor telepon anda"
                         required
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
@@ -130,7 +130,7 @@
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Enter your email"
+                      placeholder="Masukkan email anda"
                       required
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
@@ -141,14 +141,14 @@
                       for="password"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Password<span class="text-error-500"> *</span>
+                      Kata Sandi<span class="text-error-500"> *</span>
                     </label>
                     <div class="relative">
                       <input
                         v-model="password"
                         :type="showPassword ? 'text' : 'password'"
                         id="password"
-                        placeholder="Enter your password"
+                        placeholder="Masukkan kata sandi anda"
                         required
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
@@ -197,14 +197,14 @@
                       for="confirmPassword"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Confirm Password<span class="text-error-500"> *</span>
+                      Konfirmasi Kata Sandi<span class="text-error-500"> *</span>
                     </label>
                     <div class="relative">
                       <input
                         v-model="confirmPassword"
                         :type="showConfirmPassword ? 'text' : 'password'"
                         id="confirmPassword"
-                        placeholder="Re-enter your password"
+                        placeholder="Masukkan ulang kata sandi anda"
                         required
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
@@ -290,12 +290,12 @@
                           </div>
                         </div>
                         <p class="inline-block font-normal text-gray-500 dark:text-gray-400">
-                          By creating an account means you agree to the
+                          Dengan membuat akun berarti Anda setuju dengan
                           <span class="text-gray-800 dark:text-white/90">
-                            Terms and Conditions,
+                            Syarat dan Ketentuan,
                           </span>
-                          and our
-                          <span class="text-gray-800 dark:text-white"> Privacy Policy </span>
+                          dan
+                          <span class="text-gray-800 dark:text-white"> Kebijakan Privasi </span>
                         </p>
                       </label>
                     </div>
@@ -312,7 +312,7 @@
                         <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       <span v-if="loading">Creating account...</span>
-                      <span v-else>Sign Up</span>
+                      <span v-else>Daftar</span>
                     </button>
                   </div>
                 </div>
@@ -321,11 +321,11 @@
                 <p
                   class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
                 >
-                  Already have an account?
+                  Sudah punya akun?
                   <router-link
                     to="/signin"
                     class="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                    >Sign In</router-link
+                    >Masuk</router-link
                   >
                 </p>
               </div>

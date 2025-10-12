@@ -3,7 +3,7 @@
     <div class="container mx-auto p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Stock Management</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Manajemen Stok</h1>
         <p class="text-gray-600 mt-2">Kelola stok produk masuk dan keluar</p>
       </div>
 
@@ -12,7 +12,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Search -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
             <input
               v-model="searchQuery"
               type="text"
@@ -103,7 +103,7 @@
                   Produk
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quantity
+                  Jumlah
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tipe
@@ -351,7 +351,7 @@
 
             <!-- Quantity -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity<span class="text-error-500"> *</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah<span class="text-error-500"> *</span></label>
               <input
                 v-model.number="stockForm.quantity"
                 type="number"
@@ -604,7 +604,7 @@ const saveStock = async () => {
     
     alert.success(
       'Berhasil!',
-      'Transaksi stock berhasil ditambahkan.'
+      'Transaksi stok berhasil ditambahkan.'
     )
   } catch (error) {
     console.error('Failed to save stock:', error)

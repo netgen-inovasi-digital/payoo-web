@@ -109,7 +109,7 @@
                   Harga Beli
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quantity
+                  Jumlah
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tanggal
@@ -337,7 +337,7 @@
 
             <!-- Quantity -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Quantity<span class="text-error-500"> *</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah<span class="text-error-500"> *</span></label>
               <input
                 v-model.number="stockForm.quantity"
                 type="number"

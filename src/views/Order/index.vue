@@ -101,7 +101,7 @@
         <!-- Right side - Cart -->
         <div class="col-span-1 lg:col-span-4 fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto z-50 sm:z-auto">
           <div class="bg-white rounded-none sm:rounded-lg p-4 sm:p-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow sm:sticky sm:top-6">
-            <h2 class="text-xl font-semibold mb-4">Your Order</h2>
+            <h2 class="text-xl font-semibold mb-4">Pesanan Anda</h2>
 
             <!-- Scrollable content area (keeps sheet fixed on mobile) -->
             <!-- handle for mobile sheet -->
@@ -189,7 +189,7 @@
                 <span>{{ formatCurrency(subtotal) }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Tax</span>
+                <span>Pajak</span>
                 <span>{{ formatCurrency(tax) }}</span>
               </div>
               <div class="flex justify-between font-medium text-lg pt-2 border-t">

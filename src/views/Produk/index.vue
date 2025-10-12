@@ -123,7 +123,7 @@
                         </svg>
                       </button>
                       <button @click="deleteProduct(product)" class="text-red-500 hover:text-red-700">
-                        <span class="sr-only">Delete</span>
+                        <span class="sr-only">Hapus</span>
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -144,7 +144,7 @@
           <div class="bg-white rounded-lg w-full max-w-[95vw] sm:max-w-md md:max-w-lg my-2 sm:my-4 max-h-[92vh] sm:max-h-[88vh] flex flex-col">
             <div class="px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-5 pb-2 sm:pb-3 border-b border-gray-200 flex-shrink-0">
               <h3 class="text-lg sm:text-xl font-semibold">
-                {{ editingProduct ? 'Edit Product' : 'Add New Product' }}
+                {{ editingProduct ? 'Edit Produk' : 'Tambah Produk Baru' }}
               </h3>
             </div>
             
@@ -152,7 +152,7 @@
               <form @submit.prevent="saveProduct" class="space-y-3 sm:space-y-4" id="productForm">
               <!-- Product Image -->
               <div>
-                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Image<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Foto Produk<span class="text-error-500"> *</span></label>
                 <input
                   type="file"
                   accept="image/*"
@@ -178,14 +178,14 @@
 
               <!-- Product Name -->
               <div>
-                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Name<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Produk<span class="text-error-500"> *</span></label>
                 <input v-model="productForm.name" type="text" required
                   class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500" />
               </div>
 
               <!-- Description -->
               <div>
-                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Description<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Deskripsi<span class="text-error-500"> *</span></label>
                 <textarea v-model="productForm.description" required
                   class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
                   rows="3"></textarea>
@@ -193,10 +193,10 @@
 
               <!-- Category -->
               <div>
-                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Category<span class="text-error-500"> *</span></label>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Kategori<span class="text-error-500"> *</span></label>
                 <select v-model="productForm.category_id" required
                   class="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500">
-                  <option value="0">Select category</option>
+                  <option value="0">Pilih kategori</option>
                   <option v-for="category in categories" :key="category.id" :value="category.id">
                     {{ category.name }}
                   </option>
@@ -223,7 +223,7 @@
             <div class="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border-t border-gray-200 flex-shrink-0 bg-gray-50">
               <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
                 <button type="button" @click="showProductModal = false" class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm border rounded-lg bg-white hover:bg-gray-50">
-                  Cancel
+                  Batal
                 </button>
                 <button type="submit" form="productForm" :disabled="loading || imageUpload.isUploading.value"
                   class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -240,7 +240,7 @@
         <div v-if="showCategoryModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-3 md:p-4 z-50 overflow-y-auto">
           <div class="bg-white rounded-lg w-full max-w-[95vw] sm:max-w-sm md:max-w-md my-2 sm:my-4 max-h-[92vh] sm:max-h-[88vh] flex flex-col">
             <div class="px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-5 pb-2 sm:pb-3 border-b border-gray-200 flex-shrink-0">
-              <h3 class="text-lg sm:text-xl font-semibold">Manage Categories</h3>
+              <h3 class="text-lg sm:text-xl font-semibold">Kelola Kategori</h3>
             </div>
 
             <div class="overflow-y-auto flex-1 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
