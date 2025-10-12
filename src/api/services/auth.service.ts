@@ -1,6 +1,6 @@
 import api from '../index'
 import type { ApiResponse } from '../types'
-import type { LoginCredentials, RegisterData, AuthResponse, User } from '../types/auth.types'
+import type { LoginCredentials, RegisterData, AuthResponse, User, ForgotPasswordRequest, VerifyOTPRequest, ResetPasswordRequest } from '../types/auth.types'
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> {
@@ -18,18 +18,18 @@ export const authService = {
     return response.data
   },
 
-  // async logout(): Promise<void> {
-  //   await api.post('/auth/logout')
-  //   localStorage.removeItem('token')
-  // },
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ApiResponse<{ message: string }>> {
+    const response = await api.post<ApiResponse<{ message: string }>>('/auth/forgot-password', data)
+    return response.data
+  },
 
-  // async forgotPassword(email: string): Promise<ApiResponse<void>> {
-  //   const response = await api.post('/auth/forgot-password', { email })
-  //   return response.data
-  // },
+  async verifyOTP(data: VerifyOTPRequest): Promise<ApiResponse<{ message: string }>> {
+    const response = await api.post<ApiResponse<{ message: string }>>('/auth/forgot-password/verify-otp', data)
+    return response.data
+  },
 
-  // async resetPassword(token: string, password: string): Promise<ApiResponse<void>> {
-  //   const response = await api.post('/auth/reset-password', { token, password })
-  //   return response.data
-  // }
+  async resetPassword(data: ResetPasswordRequest): Promise<ApiResponse<{ message: string }>> {
+    const response = await api.post<ApiResponse<{ message: string }>>('/auth/reset-password', data)
+    return response.data
+  }
 }

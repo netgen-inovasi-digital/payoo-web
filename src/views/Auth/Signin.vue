@@ -206,7 +206,7 @@
                         </label>
                       </div>
                       <router-link
-                        to="/reset-password"
+                        to="/forgot-password"
                         class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                         >Lupa kata sandi?</router-link
                       >

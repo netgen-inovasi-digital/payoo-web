@@ -27,3 +27,18 @@ export interface AuthResponse {
   user: User
   token: string
 }
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface VerifyOTPRequest {
+  email: string
+  otp: string
+}
+
+export interface ResetPasswordRequest {
+  email: string
+  password: string
+  confirm_password: string
+}

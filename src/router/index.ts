@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { useForgotPassword } from '@/composables/useForgotPassword'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -174,6 +175,33 @@ const router = createRouter({
       },
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/Auth/ForgotPassword.vue'),
+      meta: {
+        title: 'Lupa Kata Sandi',
+        requiresGuest: true
+      },
+    },
+    {
+      path: '/verify-otp',
+      name: 'verify-otp',
+      component: () => import('../views/Auth/VerifyOTP.vue'),
+      meta: {
+        title: 'Verifikasi OTP',
+        requiresGuest: true
+      },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/Auth/ResetPassword.vue'),
+      meta: {
+        title: 'Reset Kata Sandi',
+        requiresGuest: true
+      },
+    },
+    {
       path: '/403',
       name: 'Forbidden',
       component: () => import('../views/Errors/Forbidden.vue'),
@@ -196,6 +224,7 @@ export default router
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const forgotPassword = useForgotPassword()
   
   // Check if route requires authentication
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
@@ -207,6 +236,42 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
     next('/')
     return
+  }
+  
+  // Handle forgot password flow validation
+  if (to.name === 'verify-otp' || to.name === 'reset-password') {
+    forgotPassword.initializeData()
+    
+    if (to.name === 'verify-otp' && !forgotPassword.canAccessStep('verify')) {
+      next('/forgot-password')
+      return
+    }
+    
+    if (to.name === 'reset-password' && !forgotPassword.canAccessStep('reset')) {
+      if (forgotPassword.canAccessStep('verify')) {
+        next('/verify-otp')
+      } else {
+        next('/forgot-password')
+      }
+      return
+    }
+  }
+  
+  // Clear expired forgot password data
+  if (forgotPassword.isExpired.value && (to.name === 'verify-otp' || to.name === 'reset-password')) {
+    forgotPassword.clearStorage()
+    next('/forgot-password')
+    return
+  }
+  
+  // Clear forgot password data when leaving the flow (except when navigating between flow pages)
+  const forgotPasswordRoutes = ['forgot-password', 'verify-otp', 'reset-password']
+  const isLeavingForgotPasswordFlow = 
+    forgotPasswordRoutes.includes(from.name as string) && 
+    !forgotPasswordRoutes.includes(to.name as string)
+  
+  if (isLeavingForgotPasswordFlow) {
+    forgotPassword.clearStorage()
   }
   
   // Get current user if authenticated but no user data
