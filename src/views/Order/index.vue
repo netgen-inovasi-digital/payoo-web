@@ -171,8 +171,19 @@
               <div v-if ="orderForm.payment_method === 'cash'">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Dibayar<span class="text-error-500"> *</span></label>
                 <input type="number" v-model="orderForm.amount_paid"
-                  class="w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  :class="[
+                    'w-full px-3 py-2 border rounded-lg',
+                    orderForm.payment_method === 'cash' && (!orderForm.amount_paid || orderForm.amount_paid < total)
+                      ? 'border-red-500 focus:ring-1 focus:ring-red-500 focus:border-red-500'
+                      : 'border-gray-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500'
+                  ]"
                   placeholder="Masukkan jumlah yang dibayar..." />
+                <div v-if="orderForm.payment_method === 'cash' && (!orderForm.amount_paid || orderForm.amount_paid <= 0)" class="text-red-500 text-sm mt-1">
+                  Jumlah dibayar harus diisi
+                </div>
+                <div v-else-if="orderForm.payment_method === 'cash' && orderForm.amount_paid > 0 && orderForm.amount_paid < total" class="text-red-500 text-sm mt-1">
+                  Jumlah dibayar minimal {{ formatCurrency(total) }}
+                </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
@@ -187,6 +198,10 @@
               <div class="flex justify-between">
                 <span>Subtotal</span>
                 <span>{{ formatCurrency(subtotal) }}</span>
+              </div>
+              <div v-if="orderForm.payment_method === 'cash' && orderForm.amount_paid >= total" class="flex justify-between">
+                <span>Kembalian</span>
+                <span>{{ formatCurrency(orderForm.amount_paid - total) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Pajak</span>
@@ -291,7 +306,14 @@ const orderForm = ref({
 
 // Form validation
 const isFormValid = computed(() => {
-  return orderForm.value.payment_method !== ''
+  const hasPaymentMethod = orderForm.value.payment_method !== ''
+  
+  // If payment method is cash, amount_paid must be greater than or equal to total
+  if (orderForm.value.payment_method === 'cash') {
+    return hasPaymentMethod && orderForm.value.amount_paid >= total.value
+  }
+  
+  return hasPaymentMethod
 })
 
 // Fetch products from API
