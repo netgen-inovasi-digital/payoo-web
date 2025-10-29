@@ -37,6 +37,7 @@
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nama Komposisi</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Modal</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Harga Jual</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Stok</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Unit</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Aksi</th>
               </tr>
@@ -63,6 +64,7 @@
                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ composition.name }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(composition.cost_price) }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900">{{ formatCurrency(composition.selling_price) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ composition.stock }}</td>
                 <td class="px-6 py-4 text-sm text-gray-500">{{ formatUnit(composition.unit) }}</td>
                 <td class="px-6 py-4 text-sm">
                   <div class="flex gap-2">

@@ -7,6 +7,7 @@ export interface Composition {
   cost_price: number
   selling_price: number
   unit: CompositionUnit
+  stock: number
   created_at: string
   updated_at: string
 }

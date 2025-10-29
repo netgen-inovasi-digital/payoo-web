@@ -81,6 +81,7 @@
                   <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Foto</th>
                   <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Nama</th>
                   <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Kategori</th>
+                  <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Stok</th>
                   <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Harga Modal</th>
                   <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Harga Jual</th>
                   <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500">Aksi</th>
@@ -111,6 +112,7 @@
                   </td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ product.name }}</td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500">{{ getCategoryName(product.category_id) }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ product.stock }}</td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ formatCurrency(product.cost_price) }}</td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ formatCurrency(product.selling_price) }}</td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">
@@ -320,6 +322,7 @@ const productForm = ref<Omit<Product, 'id' | 'created_at' | 'updated_at'>>({
   name: '',
   description: '',
   photo: '',
+  stock: 0,
   cost_price: 0,
   selling_price: 0
 })
@@ -392,6 +395,7 @@ const openAddProductModal = () => {
     name: '',
     description: '',
     photo: '',
+    stock: 0,
     cost_price: 0,
     selling_price: 0
   }
