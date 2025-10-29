@@ -356,7 +356,6 @@ import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
-import { useToast } from '@/composables/useToast'
 import { useAlert } from '@/composables/useAlert'
 
 defineOptions({ name: 'SignupPage' })
@@ -373,7 +372,6 @@ const loading = ref(false)
 
 const router = useRouter()
 const authStore = useAuthStore()
-const toast = useToast()
 const alert = useAlert()
 
 const togglePasswordVisibility = () => {
@@ -382,15 +380,15 @@ const togglePasswordVisibility = () => {
 
 const handleSubmit = async () => {
   if (!fullname.value || !email.value || !password.value || !confirmPassword.value || !phone.value) {
-    toast.error('Please fill all required fields')
+    alert.error('Please fill all required fields')
     return
   }
   if (password.value !== confirmPassword.value) {
-    toast.error('Passwords do not match')
+    alert.error('Passwords do not match')
     return
   }
   if (!agreeToTerms.value) {
-    toast.error('You must agree to the terms')
+    alert.error('You must agree to the terms')
     return
   }
   loading.value = true
@@ -412,7 +410,7 @@ const handleSubmit = async () => {
     }
   } catch {
     // error already set in store
-    toast.error(authStore.error || 'Registration failed')
+    alert.error('Pendaftaran Gagal!', authStore.error || 'Terjadi kesalahan saat mendaftar')
   } finally {
     loading.value = false
   }

@@ -69,8 +69,23 @@ export const useAuthStore = defineStore('auth', () => {
       setUser(response.data.user)
       return response
     } catch (err: unknown) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Registration failed'
-      error.value = errorMessage
+      const errorResponse = (err as { response?: { data?: { message?: string, errors?: Record<string, string> } } }).response?.data
+      
+      if (errorResponse?.errors) {
+        // Handle validation errors - get the first error message and translate to Indonesian
+        const firstErrorKey = Object.keys(errorResponse.errors)[0]
+        const originalError = errorResponse.errors[firstErrorKey]
+        
+        // Translate common validation messages to Indonesian
+        if (originalError?.includes('unique value') && firstErrorKey === 'email') {
+          error.value = 'Email sudah digunakan. Silakan gunakan email lain.'
+        } else {
+          error.value = originalError || 'Validation failed'
+        }
+      } else {
+        error.value = errorResponse?.message || 'Registration failed'
+      }
+      
       throw err
     } finally {
       loading.value = false
