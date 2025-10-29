@@ -73,7 +73,7 @@
               <input
                 type="file"
                 accept="image/*"
-                @change="handleProfileImageUpload"
+                @change="handleImageUpload"
                 class="mt-1 w-full rounded-lg border border-gray-300 p-2"
                 :disabled="profileLoading || imageUpload.isUploading.value"
               />
@@ -190,7 +190,7 @@ function closeProfileModal() {
   imageUpload.resetUpload()
 }
 
-const handleProfileImageUpload = async (event: Event) => {
+const handleImageUpload = async (event: Event) => {
   const success = await imageUpload.handleImageSelect(event)
   if (success) {
     profileForm.value.photo = imageUpload.previewUrl.value

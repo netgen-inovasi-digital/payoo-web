@@ -423,13 +423,11 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { stockService } from '@/api/services/stock.service'
-import { productService } from '@/api/services/product.service'
 import { useAlert } from '@/composables/useAlert'
 import { useFormatters } from '@/composables/useFormatters'
 import { useDebounce } from '@/composables/useDebounce'
 import type { Stock, StockTransaction } from '@/api/types/stock.types'
 import type { Product } from '@/api/types/product.types'
-import { formatDate } from '@fullcalendar/core/index.js'
 
 defineOptions({
   name: 'StockIndex'
@@ -437,7 +435,7 @@ defineOptions({
 
 // Composables
 const alert = useAlert()
-const { formatCurrency } = useFormatters()
+const { formatCurrency, formatDate } = useFormatters()
 
 // State
 const stocks = ref<Stock[]>([])
@@ -475,7 +473,7 @@ const stockForm = ref<StockTransaction>({
   type: 'in',
   buy_price: null,
   notes: '',
-  date: getLocalDateTime()
+  date: new Date().toISOString().slice(0, 16)
 })
 
 // Computed
@@ -570,7 +568,7 @@ const handlePerPageChange = () => {
 
 const fetchProducts = async () => {
   try {
-    const response = await productService.getProducts()
+    const response = await stockService.getShopProducts()
     if (response.status === 'success') {
       products.value = response.data || []
     }
@@ -587,7 +585,7 @@ const openStockModal = () => {
     type: 'in',
     buy_price: null,
     notes: '',
-    date: new Date().toISOString().slice(0, 16)
+    date: getLocalDateTime()
   }
   showStockModal.value = true
 }

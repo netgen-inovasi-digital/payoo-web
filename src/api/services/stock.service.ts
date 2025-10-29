@@ -1,5 +1,6 @@
 import api from '../index'
 import type { ApiResponse } from '../types'
+import { Product } from '../types/product.types'
 import type { Stock, StockTransaction } from '../types/stock.types'
 
 interface StockApiResponse {
@@ -74,6 +75,11 @@ export const stockService = {
 
   async getStock(id: number): Promise<ApiResponse<Stock>> {
     const response = await api.get(`/stocks/${id}`)
+    return response.data
+  },
+
+  async getShopProducts(): Promise<ApiResponse<Product[]>> {
+    const response = await api.get('/stocks/products/shop')
     return response.data
   }
 }

@@ -11,6 +11,7 @@ export interface OrderCreatePayload {
   amount_paid?: number
   change_money?: number
   tax?: number
+  created_at: string
   payment_method: string
   order_items: {
     product_id: number

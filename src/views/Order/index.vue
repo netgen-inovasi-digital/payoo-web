@@ -297,11 +297,19 @@ const orders = ref<Order[]>([])
 const cartItems = ref<OrderItem[]>([])
 const selectedCategory = ref<number | null>(null)
 
+const getLocalDateTime = () => {
+  const now = new Date()
+  // Kurangi timezone offset untuk mendapatkan waktu lokal
+  const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+  return localDateTime.toISOString().slice(0, 16)
+}
+
 // Order form
 const orderForm = ref({
   payment_method: '',
   notes: '',
-  amount_paid: 0
+  amount_paid: 0,
+  created_at: getLocalDateTime()
 })
 
 // Form validation
@@ -454,6 +462,7 @@ const processPayment = async () => {
       amount_paid: finalAmountPaid,
       change_money: changeMoney > 0 ? changeMoney : 0,
       tax: tax.value,
+      created_at: getLocalDateTime(),
       payment_method: orderForm.value.payment_method,
       order_items: cartItems.value.map(item => ({
         product_id: item.product.id,
@@ -475,7 +484,8 @@ const processPayment = async () => {
     orderForm.value = {
       payment_method: '',
       notes: '',
-      amount_paid: 0
+      amount_paid: 0,
+      created_at: getLocalDateTime()
     }
     cartItems.value = []
 

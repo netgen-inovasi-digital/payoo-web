@@ -409,7 +409,6 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { stockService } from '@/api/services/stock.service'
-import { productService } from '@/api/services/product.service'
 import { useAlert } from '@/composables/useAlert'
 import { useFormatters } from '@/composables/useFormatters'
 import { useDebounce } from '@/composables/useDebounce'
@@ -510,12 +509,9 @@ const fetchStocks = async () => {
     if (selectedProductId.value) params.product_id = selectedProductId.value
     if (dateFrom.value) params.date_start = dateFrom.value
     if (dateTo.value) params.date_end = dateTo.value
-        
-    console.log('Fetching pembelian with params:', params)
-    
+            
     const response = await stockService.getPembelian(params)
-    console.log('Pembelian API response:', response)
-    
+        
     if (response.status === 'success') {
       stocks.value = response.data
       // Update pagination info from API response
@@ -545,7 +541,7 @@ const handlePerPageChange = () => {
 
 const fetchProducts = async () => {
   try {
-    const response = await productService.getProducts()
+    const response = await stockService.getShopProducts()
     if (response.status === 'success') {
       products.value = response.data
     }
