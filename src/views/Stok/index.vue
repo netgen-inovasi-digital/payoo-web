@@ -3,7 +3,7 @@
     <div class="container mx-auto p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Manajemen Stok</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Stok Opname</h1>
         <p class="text-gray-600 mt-2">Kelola stok produk masuk dan keluar</p>
       </div>
 

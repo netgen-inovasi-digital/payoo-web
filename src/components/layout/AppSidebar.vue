@@ -202,7 +202,7 @@ const menuGroups: MenuGroup[] = [
       },
       {
         icon: faBoxArchive,
-        name: "Manajemen Stok",
+        name: "Stok Opname",
         path: '/stok'
       },
       {
