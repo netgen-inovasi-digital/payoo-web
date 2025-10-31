@@ -89,7 +89,7 @@
                 <h3 class="font-medium mb-1 sm:mb-2 text-sm sm:text-base line-clamp-2">{{ product.name }}</h3>
                 <div class="flex justify-between items-center">
                   <span class="text-emerald-500 font-medium text-sm sm:text-base">{{ formatCurrency(product.selling_price) }}</span>
-                  <span class="text-gray-500 text-xs sm:text-sm">{{ product.stock }} / Pcs</span>
+                  <span class="text-gray-500 text-xs sm:text-sm">/ Pcs</span>
                 </div>
               </div>
             </div>
