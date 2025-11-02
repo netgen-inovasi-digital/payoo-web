@@ -26,4 +26,21 @@ export interface ReportData {
   date_range: ReportDateRange
 }
 
+export interface ReportV2Filters {
+  range_start?: string
+  range_end?: string
+}
+
+export interface ReportV2Data {
+  orders: ReportOrder[]
+  total_orders: number
+  filters?: ReportV2Filters
+  date_range: ReportDateRange
+}
+
+export interface ReportV2Params {
+  range_start?: string
+  range_end?: string
+}
+
 export type ReportPeriod = 'today' | 'this_week' | 'this_month'
