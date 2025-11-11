@@ -101,8 +101,8 @@
               </div>
 
               <!-- Order Items Table -->
-              <div class="border-l border-r border-b border-gray-300 overflow-x-auto">
-                <table class="min-w-[640px] w-full text-xs table-fixed">
+              <div class="border-l border-r border-b border-gray-300 overflow-x-auto sm:overflow-x-visible">
+                <table class="min-w-[640px] sm:min-w-full w-full text-xs table-fixed">
                   <colgroup>
                     <col style="width:6%" />
                     <col style="width:54%" />
@@ -150,7 +150,7 @@
             </div>
 
             <!-- Grand Total -->
-            <div class="mt-4 border border-gray-300 bg-white overflow-x-auto">
+            <div class="mt-4 border border-gray-300 bg-white overflow-x-auto sm:overflow-x-visible">
               <table class="min-w-[480px] w-full text-sm">
                 <tbody>
                   <tr>
