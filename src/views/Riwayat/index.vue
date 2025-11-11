@@ -1,7 +1,15 @@
 <template>
   <AdminLayout>
     <div class="container mx-auto p-6">
-      <h2 class="text-2xl font-semibold mb-4">Laporan</h2>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold">Laporan</h2>
+        <button
+          @click="goToPrint"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          🖨️ Cetak Laporan
+        </button>
+      </div>
 
       <!-- Header -->
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
@@ -218,6 +226,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { reportService } from '@/api/services/report.service'
 import { orderService } from '@/api/services/order.service'
@@ -231,6 +240,7 @@ defineOptions({
 })
 
 // Composables
+const router = useRouter()
 const { formatDate, formatPaymentMethod, formatCurrency } = useFormatters()
 const authStore = useAuthStore()
 
@@ -324,6 +334,10 @@ const formatDateForAPI = (date: Date) => {
 }
 
 // Methods
+const goToPrint = () => {
+  router.push('/laporan/cetak')
+}
+
 const fetchReportsV2 = async () => {
   try {
     loading.value = true

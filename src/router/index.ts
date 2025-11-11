@@ -27,6 +27,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/laporan/cetak',
+      name: 'LaporanCetak',
+      component: () => import('../views/Riwayat/print.vue'),
+      meta: {
+        title: 'Cetak Laporan',
+        requiresAuth: true
+      },
+    },
+    {
       path: '/order',
       name: 'Order',
       component: () => import('../views/Order/index.vue'),
